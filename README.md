@@ -22,6 +22,10 @@ python3 build.py
 
 Then open `dist/index.html` in a browser.
 
+The build also makes the link preview (unfurl card): `dist/og-card.png` from `src/og_card_template.html`, drawn with headless Google Chrome, plus the preview tags on `dist/index.html` and the short-link `index.html`. Title and description live at the top of `build.py`.
+
+Live page: https://feldtdesign-ship-it.github.io/pj-tee-tech-pack/
+
 ## The tee model
 
 - `assets/tee_viewer_model_v1.glb` was exported from the "Comfortable T-Shirt" in Blender (a BlenderKit model: check its license before public use).
