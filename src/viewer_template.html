@@ -1,0 +1,488 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PJ Tee Tech Pack 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ink:#121212; --yellow:#F2C200; --cream:#F0EDE5; --paper:#FBFAF6; --line:#cfcbc2;
+  --blue:#497CB5; --bluegrid:rgba(73,124,181,.16); --orange:#F26A1B; --muted:#5b5850;
+  --h:Oswald,Impact,"Arial Narrow",sans-serif; --b:Inter,Helvetica,Arial,sans-serif; --m:"IBM Plex Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:14px;margin:0}
+.wrap{max-width:1440px;margin:0 auto;padding-inline:16px;padding-block:16px 28px}
+.mono{font-family:var(--m);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+.h{font-family:var(--h);font-weight:700;text-transform:uppercase;line-height:.95;letter-spacing:-.005em;text-wrap:balance;margin:0}
+
+/* header band, from the turnaround sheet */
+.band{background:var(--ink);color:#fff;display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;padding:18px 24px 16px;border-bottom:8px solid var(--yellow)}
+.band img{height:58px;width:auto;display:block}
+.band .t{font-size:clamp(30px,4.4vw,58px)}
+.band .t span{color:var(--yellow)}
+.band .t .beta{font:500 .38em/1 var(--m);font-style:normal;letter-spacing:.18em;color:var(--ink);background:var(--yellow);padding:.3em .45em .25em;margin-left:.3em;vertical-align:.55em}
+.band .sub{color:#bdbdbd;margin-top:8px}
+.meta{display:grid;grid-template-columns:auto auto;gap:4px 22px;font-size:12px;color:#e8e8e8}
+.meta b{display:block;font-family:var(--m);font-weight:500;font-size:9px;letter-spacing:.18em;color:var(--yellow);text-transform:uppercase}
+.meta div{border-bottom:1px solid #3a3a3a;padding-bottom:3px;min-width:130px}
+
+/* style picker */
+.styles{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px}
+.styles button{font:700 15px/1 var(--h);text-transform:uppercase;letter-spacing:.02em;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:10px 14px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.styles button .n{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.styles button[aria-pressed="true"]{background:var(--yellow)}
+.styles button:focus-visible,.views button:focus-visible,.sw:focus-visible,.hs:focus-visible,.seg button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+@media (max-width:980px){.main{grid-template-columns:1fr}}
+
+.panel{background:#fff;border:2px solid var(--ink)}
+.bar{background:var(--yellow);display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:2px solid var(--ink);gap:10px;flex-wrap:wrap}
+.bar .h{font-size:24px}
+.cap{font-size:12px;color:var(--muted);font-style:italic;padding:6px 12px 0}
+
+.stage{position:relative;aspect-ratio:4/3.1;max-width:100%;
+  background-color:#fff;
+  background-image:linear-gradient(var(--bluegrid) 1px,transparent 1px),linear-gradient(90deg,var(--bluegrid) 1px,transparent 1px);
+  background-size:24px 24px;touch-action:none}
+.stage canvas{display:block;width:100%;height:100%}
+.hs{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--yellow);border:2px solid var(--yellow);font:700 12px/1 var(--h);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:opacity .2s}
+.hs[data-off="1"]{opacity:0;pointer-events:none}
+.hs.on{background:var(--yellow);color:var(--ink);border-color:var(--ink)}
+.facing{position:absolute;left:0;right:0;bottom:8px;text-align:center;color:var(--muted)}
+.loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+
+.views{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-top:2px solid var(--ink);background:var(--cream)}
+.views button{font:700 13px/1 var(--h);text-transform:uppercase;border:2px solid var(--ink);background:#fff;padding:8px 10px;cursor:pointer}
+.views button[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 22px;padding:14px 12px 16px;border-top:2px solid var(--ink)}
+.ctl .lab{display:flex;justify-content:space-between;margin-bottom:8px;color:var(--muted)}
+.ctl .val{font-family:var(--m);font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:34px;height:34px;border:2px solid var(--ink);cursor:pointer;padding:0;position:relative}
+.sw[aria-pressed="true"]::after{content:"";position:absolute;inset:-6px;border:2px solid var(--blue)}
+.seg{display:flex;border:2px solid var(--ink);width:max-content;max-width:100%}
+.seg button{font:600 12px/1 var(--b);border:0;background:#fff;padding:9px 10px;cursor:pointer}
+.seg button+button{border-left:2px solid var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+input[type=range]{width:100%;accent-color:var(--ink)}
+.note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+.tbcflag{display:inline-block;background:var(--orange);color:#fff;font-family:var(--m);font-size:9px;letter-spacing:.14em;padding:2px 5px;margin-left:6px;vertical-align:1px}
+
+/* spec column, from HOUSE RULES */
+.side{background:var(--cream);border:2px solid var(--ink)}
+.side .top{background:var(--ink);color:var(--yellow);padding:10px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.side .top .h{font-size:26px}
+.side .top .mono{color:#bdbdbd;font-size:9px}
+.stylehead{padding:14px 14px 10px;border-bottom:2px solid var(--ink)}
+.stylehead .h{font-size:34px}
+.stylehead .kind{margin-top:6px;color:var(--muted)}
+.stylehead .ln{border-left:5px solid var(--yellow);padding-left:12px;margin-top:12px;font-weight:600;font-size:15px;line-height:1.35}
+ol.rules{list-style:none;margin:0;padding:6px 14px 10px}
+ol.rules li{display:grid;grid-template-columns:30px 1fr;gap:8px;padding:9px 6px;border-bottom:1px solid var(--line);transition:background .25s}
+ol.rules li.hit{background:var(--yellow)}
+ol.rules .no{font:700 18px/1 var(--h);color:var(--blue)}
+ol.rules .k{font:700 14px/1.1 var(--h);text-transform:uppercase}
+ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
+.tbc{font-family:var(--m);font-size:11px;letter-spacing:.12em;color:var(--orange);font-weight:500}
+.decide{padding:4px 14px 14px}
+.decide .mono{margin:8px 0 8px;color:var(--muted)}
+.decide details{border:2px solid var(--ink);background:#fff;margin-bottom:8px}
+.decide summary{cursor:pointer;padding:9px 10px;font:700 14px/1.1 var(--h);text-transform:uppercase;list-style-position:inside}
+.decide details p{margin:0;padding:0 10px 10px;font-size:13px;line-height:1.42}
+
+/* art facts */
+.facts{margin-top:16px}
+.facts .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;border-top:2px solid var(--ink)}
+.facts .grid>div{padding:10px 12px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.facts .grid .mono{color:var(--muted);font-size:9px;margin-bottom:4px}
+
+/* printer rules bar */
+.robot{margin-top:16px;background:var(--ink);color:#fff;padding:14px 16px;display:grid;grid-template-columns:minmax(200px,300px) 1fr;gap:16px;align-items:center}
+@media (max-width:760px){.robot{grid-template-columns:1fr}}
+.robot .h{color:var(--yellow);font-size:26px}
+.robot p{margin:6px 0 0;font-size:12px;color:#cfcfcf;line-height:1.4}
+.pills{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.pill{border:2px solid var(--yellow);border-radius:6px;padding:8px 6px;text-align:center}
+.pill b{display:block;font:700 15px/1 var(--h);text-transform:uppercase;color:var(--yellow)}
+.pill span{display:block;font-size:10px;color:#cfcfcf;margin-top:4px}
+.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;color:var(--muted)}
+.foot.legal{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);letter-spacing:.08em;text-transform:none}
+@media (max-width:620px){.band{grid-template-columns:1fr}.band img{height:44px}.meta{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* one screen on a desktop browser: tee + controls left, spec column scrolls on its own */
+.side .facts{margin-top:0;border:0;border-top:2px solid var(--ink)}
+.side .robot{margin-top:0;grid-template-columns:1fr}
+.side .facts .grid{grid-template-columns:1fr 1fr}
+@media (min-width:980px) and (min-height:600px){
+  html,body{height:100%;overflow:hidden}
+  .wrap{height:100vh;display:flex;flex-direction:column;gap:8px;padding-block:10px 8px}
+  .band{padding:8px 16px;gap:18px;border-bottom-width:5px}
+  .band img{height:36px}
+  .band .t{font-size:30px}
+  .band .sub{margin-top:4px}
+  .meta{grid-template-columns:repeat(4,auto);font-size:11px}
+  .meta div{min-width:0}
+  .styles{margin:0}
+  .styles button{padding:6px 10px;font-size:13px}
+  .main{flex:1;min-height:0;align-items:stretch}
+  .panel.view{display:grid;grid-template-columns:minmax(0,1fr) 250px;grid-template-rows:auto auto minmax(0,1fr) auto;min-height:0}
+  .view .bar{grid-column:1/-1}
+  .view .cap{grid-column:1;grid-row:2}
+  .view .stage{grid-column:1;grid-row:3;aspect-ratio:auto;min-height:0}
+  .view .views{grid-column:1;grid-row:4}
+  .view .controls{grid-column:2;grid-row:2/5;grid-template-columns:1fr;align-content:start;gap:10px;padding:10px 12px;border-top:0;border-left:2px solid var(--ink);overflow:auto;background:var(--paper)}
+  .view .ctl .lab{margin-bottom:5px}
+  .view .note{margin-top:4px;font-size:11px;line-height:1.3}
+  .view .sw{width:28px;height:28px}
+  .side{overflow:auto;min-height:0}
+  .foot{margin-top:0;font-size:9px}
+}
+/* short laptop screens: drop the hint lines under the controls (the spec column says the same) */
+@media (min-width:980px) and (min-height:600px) and (max-height:820px){
+  .view .note{display:none}
+  .view .cap{display:none}
+  .view .controls{gap:8px}
+}
+</style>
+
+<div class="wrap">
+  <header class="band">
+    <img src="__SIG__" alt="PJ O'Rourke signature">
+    <div>
+      <h1 class="h t">Tee <span>Tech Pack</span> 2.0 <em class="beta">Beta</em></h1>
+      <div class="sub mono">Graphic tees · existing blank · screen print · 3D tee scaled to 29 in, placeholder</div>
+    </div>
+    <div class="meta">
+      <div><b>Pack</b>v1 2.0</div>
+      <div><b>Date</b>Sept 24, 2026</div>
+      <div><b>Artist</b>PJ O'Rourke II</div>
+      <div><b>Approved by</b><span class="tbc">TBC</span></div>
+    </div>
+  </header>
+
+  <nav class="styles" id="styles" aria-label="Styles"></nav>
+
+  <div class="main">
+    <section class="panel view" aria-label="3D view">
+      <div class="bar"><h2 class="h" id="viewTitle">Front</h2><span class="mono">Drag to spin · scroll or pinch to zoom · tap a number</span></div>
+      <div class="cap" id="viewCap">The side the factory prints. Numbers match the spec list.</div>
+      <div class="stage" id="stage">
+        <div class="loading mono" id="loading">Loading the tee</div>
+        <div class="facing mono" id="facing">Facing you</div>
+      </div>
+      <div class="views" id="views"></div>
+      <div class="controls">
+        <div class="ctl">
+          <div class="lab mono">Body color <span class="val" id="bodyVal"></span></div>
+          <div class="swatches" id="bodySw"></div>
+          <div class="note">Preview colors only. Blank colors are TBC.</div>
+        </div>
+        <div class="ctl">
+          <div class="lab mono">Line ink <span class="val" id="inkVal"></span></div>
+          <div class="swatches" id="inkSw"></div>
+        </div>
+        <div class="ctl">
+          <div class="lab mono">White fills</div>
+          <div class="seg" id="fillSeg">
+            <button type="button" id="fillPrint" data-v="print" aria-pressed="true">Print white</button>
+            <button type="button" id="fillOpen" data-v="open" aria-pressed="false">Leave open</button>
+          </div>
+          <div class="note">Open decision. See "White fills" in the spec column.</div>
+        </div>
+        <div class="ctl">
+          <div class="lab mono"><label for="drop">Down from collar</label> <span class="val" id="dropVal"></span></div>
+          <input type="range" id="drop" min="1" max="8" step="0.25" value="3">
+          <div class="lab mono" style="margin-top:12px"><label for="width">Print width</label> <span class="val" id="widthVal"></span></div>
+          <input type="range" id="width" min="6" max="13" step="0.25" value="9">
+          <div class="note">Try placements here. The pack stays TBC until PJ signs off.</div>
+        </div>
+        <div class="ctl">
+          <div class="lab mono"><label for="sdrop">Signature, down from back collar</label> <span class="val" id="sdropVal"></span></div>
+          <input type="range" id="sdrop" min="0.5" max="4" step="0.25" value="1.5">
+          <div class="lab mono" style="margin-top:12px"><label for="swidth">Signature width</label> <span class="val" id="swidthVal"></span></div>
+          <input type="range" id="swidth" min="2" max="6" step="0.25" value="3.5">
+          <div class="note">Center back neck. Same ink as the front line.</div>
+        </div>
+        <div class="ctl">
+          <div class="lab mono">Measurements</div>
+          <div class="seg" id="measSeg">
+            <button type="button" id="measOn" data-v="1" aria-pressed="true">Show</button>
+            <button type="button" id="measOff" data-v="0" aria-pressed="false">Hide</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side" aria-label="Spec">
+      <div class="top"><h2 class="h">Spec</h2><span class="mono">From the file, or TBC</span></div>
+      <div class="stylehead">
+        <div class="mono" id="sNum"></div>
+        <h3 class="h" id="sName"></h3>
+        <div class="kind mono" id="sKind"></div>
+        <div class="ln" id="sLine"></div>
+      </div>
+      <ol class="rules" id="specList"></ol>
+      <div class="decide" id="decide"></div>
+      <section class="panel facts" aria-label="Art file">
+        <div class="bar"><h2 class="h">The art file</h2><span class="mono">Read from the file</span></div>
+        <div class="grid" id="facts"></div>
+      </section>
+      <section class="robot">
+        <div><h2 class="h">Rules for the printer</h2><p>The PDF tech pack is the paper version of this page. Same fields, same TBCs.</p></div>
+        <div class="pills" id="pills"></div>
+      </section>
+    </aside>
+  </div>
+
+  <div class="foot mono legal"><span>© 2026 PJ O'Rourke II. All rights reserved. · Tee Tech Pack v1 2.0</span><span>Art, signature, and spec: no reuse without written permission. 3D tee is a placeholder stand-in (BlenderKit, own license), scaled to 29 in.</span></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+const DATA = __DATA__;
+const MESH = __MESH__;
+const TEE_GLB = "__GLB__";
+const ART = {s01:{ink:"__INK__", fill:"__FILL__"}, sig:"__SIGINK__"};
+
+const BODY = [["Cream","#F3EFE4"],["White","#FAFAF7"],["Concrete grey","#A7A59E"],["Platform yellow","#F2C200"],["Royal","#1E4FD6"],["Ink black","#161616"]];
+const INKS = [["Black","#121212"],["Cream","#F3EFE4"],["Platform yellow","#F2C200"]];
+const VIEWS = [
+  {k:"front", t:"Front", cap:"The side the factory prints. Numbers match the spec list.", face:"Facing you", dir:[0,0,1]},
+  {k:"left", t:"Left side", cap:"His left, not yours.", face:"Facing →", dir:[1,0,0]},
+  {k:"back", t:"Back", cap:"Yes, the back. PJ's signature at the neck.", face:"Facing away", dir:[0,0,-1]},
+  {k:"right", t:"Right side", cap:"Mirror of the left.", face:"← Facing", dir:[-1,0,0]},
+  {k:"q", t:"3/4 vanity", cap:"For the humans. Not a spec view.", face:"3/4", dir:[.72,.12,.68]},
+];
+// hotspots: 3D anchor + spec row it lights up
+const HOT = [
+  {n:"1", key:"Print size", side:1},{n:"2", key:"Down from collar", side:1},{n:"3", key:"Neck label", side:1, inside:true},
+  {n:"4", key:"Signature", side:-1},{n:"5", key:"Blank", side:1},{n:"6", key:"Size run", side:1},
+];
+
+const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", fill:"print", drop:3, width:9, meas:true, view:"front"};
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cur = ()=>DATA.styles.find(s=>s.key===st.style);
+const printH = ()=>st.width*4/3;
+const tbc = '<span class="tbc">TBC</span>';
+
+// ---------- UI ----------
+function btn(parent,html,attrs,on){const b=document.createElement("button");b.type="button";b.innerHTML=html;for(const k in attrs)b.setAttribute(k,attrs[k]);b.addEventListener("click",on);parent.appendChild(b);return b;}
+DATA.styles.forEach(s=>btn($("#styles"),`<span class="n">${s.num}</span>${esc(s.name)}`,{id:"style-"+s.key,"aria-pressed":s.key===st.style},()=>{st.style=s.key;render();}));
+VIEWS.forEach(v=>btn($("#views"),v.t,{id:"view-"+v.k,"aria-pressed":v.k===st.view},()=>goView(v.k)));
+BODY.forEach(([n,c])=>btn($("#bodySw"),"",{class:"sw",id:"body-"+n.replace(/\s/g,""),title:n,"aria-label":"Body "+n,"aria-pressed":c===st.body,style:"background:"+c},()=>{st.body=c;render();}));
+INKS.forEach(([n,c])=>btn($("#inkSw"),"",{class:"sw",id:"ink-"+n.replace(/\s/g,""),title:n,"aria-label":"Ink "+n,"aria-pressed":c===st.ink,style:"background:"+c},()=>{st.ink=c;render();}));
+$("#fillSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.fill=b.dataset.v;render();}));
+$("#measSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.meas=b.dataset.v==="1";render();}));
+$("#drop").addEventListener("input",e=>{st.drop=+e.target.value;render();});
+$("#width").addEventListener("input",e=>{st.width=+e.target.value;render();});
+$("#sdrop").addEventListener("input",e=>{st.sdrop=+e.target.value;render();});
+$("#swidth").addEventListener("input",e=>{st.swidth=+e.target.value;render();});
+DATA.rules.forEach(([a,b])=>{const d=document.createElement("div");d.className="pill";d.innerHTML=`<b>${esc(a)}</b><span>${esc(b)}</span>`;$("#pills").appendChild(d);});
+
+function frac(v){const w=Math.floor(v),f=v-w;const m={0:"",0.25:" 1/4",0.5:" 1/2",0.75:" 3/4"}[f];return (w||!m?w:"")+(m??"")+" in";}
+
+function renderPanel(){
+  const s=cur();
+  $("#sNum").textContent="Style "+s.num;
+  $("#sName").textContent=s.name;
+  $("#sKind").textContent=s.kind;
+  $("#sLine").textContent=s.line;
+  $("#specList").innerHTML=s.spec.map(([k,v],i)=>`<li data-k="${esc(k)}"><span class="no">${String(i+1).padStart(2,"0")}</span><div><div class="k">${esc(k)}</div><div class="v">${v?esc(v):tbc}</div></div></li>`).join("");
+  $("#decide").innerHTML=s.decisions.length?`<div class="mono">Open decisions · ${s.decisions.length}</div>`+s.decisions.map(([k,v])=>`<details><summary>${esc(k)}</summary><p>${esc(v)}</p></details>`).join(""):`<div class="mono">Open decisions</div><p class="note">None yet. Add them when the art lands.</p>`;
+  $("#facts").innerHTML=s.art_facts.map(([k,v])=>`<div><div class="mono">${esc(k)}</div>${v?esc(v):tbc}</div>`).join("");
+  document.querySelectorAll("#styles button").forEach(b=>b.setAttribute("aria-pressed",b.id==="style-"+s.key));
+  document.querySelectorAll("#bodySw button").forEach(b=>b.setAttribute("aria-pressed",b.style.background&&rgbHex(b.style.backgroundColor)===st.body.toLowerCase()));
+  document.querySelectorAll("#inkSw button").forEach(b=>b.setAttribute("aria-pressed",rgbHex(b.style.backgroundColor)===st.ink.toLowerCase()));
+  $("#bodyVal").textContent=BODY.find(b=>b[1]===st.body)[0];
+  $("#inkVal").textContent=INKS.find(b=>b[1]===st.ink)[0];
+  $("#fillPrint").setAttribute("aria-pressed",st.fill==="print");$("#fillOpen").setAttribute("aria-pressed",st.fill==="open");
+  $("#measOn").setAttribute("aria-pressed",st.meas);$("#measOff").setAttribute("aria-pressed",!st.meas);
+  $("#dropVal").textContent=frac(st.drop);$("#widthVal").textContent=frac(st.width)+" x "+frac(Math.round(printH()*4)/4);
+  $("#sdropVal").textContent=frac(st.sdrop);$("#swidthVal").textContent=frac(st.swidth);
+  const art=s.art; ["#sdrop","#swidth","#drop","#width","#fillPrint","#fillOpen"].forEach(q=>$(q).disabled=!art);
+}
+function rgbHex(rgb){const m=rgb.match(/\d+/g);return m?"#"+m.slice(0,3).map(x=>(+x).toString(16).padStart(2,"0")).join(""):"";}
+
+// ---------- texture ----------
+const B=MESH.bbox, TW=2048, PPI=TW/B.W, TH=Math.round(B.H*PPI);
+const frontCv=document.createElement("canvas");frontCv.width=TW;frontCv.height=TH;
+const backCv=document.createElement("canvas");backCv.width=TW;backCv.height=TH;
+const tmp=document.createElement("canvas");
+const imgs={};
+let renderer,scene,camera,controls,fTex=null,bTex=null,collarMat=null,tween=null;
+function loadImg(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=src;});}
+function tinted(img,color){tmp.width=img.width;tmp.height=img.height;const c=tmp.getContext("2d");c.clearRect(0,0,tmp.width,tmp.height);c.drawImage(img,0,0);c.globalCompositeOperation="source-in";c.fillStyle=color;c.fillRect(0,0,tmp.width,tmp.height);c.globalCompositeOperation="source-over";return tmp;}
+const X=x=>(x-B.minx)*PPI, Y=y=>y*PPI;
+function dim(c,x1,y1,x2,y2,label,vert){
+  c.strokeStyle="#497CB5";c.fillStyle="#497CB5";c.lineWidth=5;c.setLineDash([]);
+  c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();
+  const tick=18;c.beginPath();
+  if(vert){c.moveTo(x1-tick,y1);c.lineTo(x1+tick,y1);c.moveTo(x2-tick,y2);c.lineTo(x2+tick,y2);}else{c.moveTo(x1,y1-tick);c.lineTo(x1,y1+tick);c.moveTo(x2,y2-tick);c.lineTo(x2,y2+tick);}
+  c.stroke();
+  c.font="600 44px 'IBM Plex Mono', Menlo, monospace";const w=c.measureText(label).width;
+  const mx=(x1+x2)/2,my=(y1+y2)/2;c.fillStyle="#fff";
+  if(vert){c.fillRect(mx+22,my-30,w+20,56);c.fillStyle="#497CB5";c.fillText(label,mx+32,my+14);}
+  else{c.fillRect(mx-w/2-10,my-66,w+20,56);c.fillStyle="#497CB5";c.fillText(label,mx-w/2,my-24);}
+}
+function paint(){
+  const s=cur(), fc=frontCv.getContext("2d"), bc=backCv.getContext("2d");
+  [fc,bc].forEach(c=>{c.fillStyle=st.body;c.fillRect(0,0,TW,TH);});
+  const top=MESH.frontDrop+st.drop, w=st.width, h=printH();
+  const px=X(-w/2), py=Y(top), pw=w*PPI, ph=h*PPI;
+  if(s.art && imgs.s01){
+    if(st.fill==="print") fc.drawImage(tinted(imgs.s01.fill,"#FAFAF7"),px,py,pw,ph);
+    fc.drawImage(tinted(imgs.s01.ink,st.ink),px,py,pw,ph);
+  } else {
+    fc.setLineDash([26,18]);fc.lineWidth=6;fc.strokeStyle="#121212";fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
+    fc.fillStyle="#121212";fc.font="700 120px Oswald, Impact, sans-serif";fc.textAlign="center";
+    fc.fillText("ART TBA",X(0),py+ph/2+40);fc.textAlign="left";
+  }
+  if(st.meas){
+    fc.save();fc.strokeStyle="#497CB5";fc.lineWidth=4;fc.setLineDash([22,14]);fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
+    // center front line
+    fc.globalAlpha=.55;fc.beginPath();fc.moveTo(X(0),Y(MESH.frontDrop));fc.lineTo(X(0),Y(B.H));fc.stroke();fc.globalAlpha=1;
+    dim(fc,X(w/2+1.1),Y(MESH.frontDrop),X(w/2+1.1),py,frac(st.drop),true);
+    dim(fc,px,py+ph+90,px+pw,py+ph+90,frac(w)+" print width",false);
+    dim(fc,X(-w/2-1.1),py,X(-w/2-1.1),py+ph,"",true);
+    fc.save();fc.translate(X(-w/2-1.1)-28,py+ph/2);fc.rotate(-Math.PI/2);fc.font="600 44px 'IBM Plex Mono', Menlo, monospace";const lb=frac(Math.round(h*4)/4)+" tall";const lw=fc.measureText(lb).width;fc.fillStyle="#fff";fc.fillRect(-lw/2-10,-46,lw+20,56);fc.fillStyle="#497CB5";fc.fillText(lb,-lw/2,0);fc.restore();
+    fc.restore();
+  }
+  // back: signature at center back neck. Canvas is mirrored so it reads from behind.
+  bc.save();bc.translate(TW,0);bc.scale(-1,1);
+  const sw=st.swidth, sy=MESH.backDrop+st.sdrop;
+  if(s.art && imgs.sig){
+    const sh=sw*imgs.sig.height/imgs.sig.width; st._sh=sh;
+    bc.drawImage(tinted(imgs.sig,st.ink),TW-X(sw/2),Y(sy),sw*PPI,sh*PPI);
+    if(st.meas){
+      bc.strokeStyle="#497CB5";bc.lineWidth=4;bc.setLineDash([18,12]);bc.strokeRect(TW-X(sw/2),Y(sy),sw*PPI,sh*PPI);bc.setLineDash([]);
+      dim(bc,TW-X(sw/2+.8),Y(MESH.backDrop),TW-X(sw/2+.8),Y(sy),frac(st.sdrop),true);
+      dim(bc,TW-X(sw/2),Y(sy+sh)+80,TW-X(-sw/2),Y(sy+sh)+80,frac(sw)+" signature",false);
+    }
+  } else if(st.meas){
+    bc.fillStyle="rgba(73,124,181,.9)";bc.font="600 46px 'IBM Plex Mono', Menlo, monospace";bc.textAlign="center";
+    bc.fillText("BACK · TBC",TW-X(0),Y(12));bc.textAlign="left";
+  }
+  bc.restore();
+  if(fTex){fTex.needsUpdate=true;bTex.needsUpdate=true;}
+  if(innerMat)innerMat.color.set(st.body).convertSRGBToLinear();
+  if(teeMesh)updateHot();
+}
+function shade(hex,a){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(v+(a<0?v*a:(255-v)*a))));return "#"+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,"0")).join("");}
+
+// ---------- 3D ----------
+const stage=$("#stage");
+let teeMesh=null, innerMat=null;
+const ray=()=>new THREE.Raycaster();
+function surf(x,y,from){ // point on the tee surface, seen from the front (+1) or back (-1)
+  if(!teeMesh)return [x,y,0];
+  const r=ray();r.set(new THREE.Vector3(x,y,60*from),new THREE.Vector3(0,0,-from));
+  const h=r.intersectObject(teeMesh,false)[0];
+  return h?[h.point.x,h.point.y,h.point.z+.25*from]:[x,y,0];
+}
+function updateHot(){
+  const top=MESH.frontDrop+st.drop;
+  const pos={"Print size":surf(0,-(top+printH()/2),1),"Down from collar":surf(0,-(MESH.frontDrop+st.drop/2),1),
+    "Neck label":surf(0,-.9,1),"Signature":surf(0,-(MESH.backDrop+st.sdrop+(st._sh||1)/2),-1),"Blank":surf(-9.6,-6.2,1),"Size run":surf(7.5,-27.4,1)};
+  HOT.forEach(h=>h.p=pos[h.key]);
+}
+function planarMaterial(tex,normalMap,flip){
+  const m=new THREE.MeshStandardMaterial({map:tex,normalMap:normalMap||null,roughness:.95,metalness:0,side:THREE.DoubleSide});
+  if(normalMap)m.normalScale=new THREE.Vector2(.9,.9);
+  m.onBeforeCompile=sh=>{
+    sh.vertexShader=sh.vertexShader.replace("#include <common>","#include <common>\nattribute vec2 planarUv;\nvarying vec2 vPlanar;")
+      .replace("#include <uv_vertex>","#include <uv_vertex>\nvPlanar=planarUv;");
+    sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nvarying vec2 vPlanar;")
+      .replace("#include <map_fragment>","vec4 sampledDiffuseColor=gl_FrontFacing?texture2D(map,vPlanar):texture2D(map,vec2(.002,.002));\ndiffuseColor*=sampledDiffuseColor;");
+  };
+  return m;
+}
+function b64buf(d){const s=atob(d.split(",")[1]);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer;}
+function init3D(){
+  if(!window.THREE||!THREE.GLTFLoader){$("#loading").textContent="3D didn't load. Check the connection and reload.";return;}
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  stage.prepend(renderer.domElement);
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(30,1,1,500);
+  scene.add(new THREE.HemisphereLight(0xffffff,0xd8d4ca,.72));
+  const key=new THREE.DirectionalLight(0xffffff,.6);key.position.set(20,30,40);scene.add(key);
+  const rim=new THREE.DirectionalLight(0xffffff,.32);rim.position.set(-30,10,-30);scene.add(rim);
+  fTex=new THREE.CanvasTexture(frontCv);bTex=new THREE.CanvasTexture(backCv);
+  [fTex,bTex].forEach(t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;});
+  new THREE.GLTFLoader().parse(b64buf(TEE_GLB),"",gl=>{
+    let src=null;gl.scene.traverse(o=>{if(o.isMesh&&!src)src=o;});
+    const g=src.geometry.index?src.geometry:src.geometry;
+    const P=g.attributes.position, n=P.count, pl=new Float32Array(n*2);
+    for(let i=0;i<n;i++){pl[i*2]=(P.getX(i)-B.minx)/B.W;pl[i*2+1]=1+P.getY(i)/B.H;}
+    g.setAttribute("planarUv",new THREE.BufferAttribute(pl,2));
+    // split triangles: facing front vs back
+    const idx=g.index.array, f=[], bk=[], inner=[], a=new THREE.Vector3(), b=new THREE.Vector3(), c=new THREE.Vector3();
+    for(let t=0;t<idx.length;t+=3){a.fromBufferAttribute(P,idx[t]);b.fromBufferAttribute(P,idx[t+1]);c.fromBufferAttribute(P,idx[t+2]);
+      const nz=b.clone().sub(a).cross(c.clone().sub(a)).z;const zc=(a.z+b.z+c.z)/3;
+      const grpT=(nz>0&&zc>-1)||zc>1.5?f:(nz>0?inner:bk);grpT.push(idx[t],idx[t+1],idx[t+2]);}
+    g.setIndex([...f,...bk,...inner]);g.clearGroups();g.addGroup(0,f.length,0);g.addGroup(f.length,bk.length,1);g.addGroup(f.length+bk.length,inner.length,2);
+    // back print reads from behind: mirror u for the back group via a second attribute is overkill; flip the back canvas instead
+    const nm=src.material&&src.material.normalMap||null;
+    innerMat=new THREE.MeshStandardMaterial({color:st.body,normalMap:nm,roughness:.95,side:THREE.DoubleSide});
+    teeMesh=new THREE.Mesh(g,[planarMaterial(fTex,nm),planarMaterial(bTex,nm),innerMat]);
+    const grp=new THREE.Group();grp.add(teeMesh);grp.position.y=B.H/2;scene.add(grp);teeMesh.updateMatrixWorld(true);
+    window.teeGrp=grp;
+    updateHot();
+    $("#loading").remove();
+  });
+  controls=new THREE.OrbitControls(camera,renderer.domElement);
+  controls.enableDamping=true;controls.minDistance=24;controls.maxDistance=130;controls.enablePan=false;
+  controls.addEventListener("start",()=>{tween=null;});
+  HOT.forEach(h=>{const b=document.createElement("button");b.type="button";b.className="hs";b.id="hs"+h.n;b.textContent=h.n;b.setAttribute("aria-label","Spec: "+h.key);b.addEventListener("click",()=>hit(h.key,b));stage.appendChild(b);h.el=b;});
+  resize();new ResizeObserver(resize).observe(stage);
+  setCam(VIEWS[0].dir,true);
+  paint();loop();
+}
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+function setCam(dir,jump){
+  const d=new THREE.Vector3(...dir).normalize().multiplyScalar(camera.aspect<1?96:74);
+  if(jump){camera.position.copy(d);controls.target.set(0,0,0);controls.update();return;}
+  tween={from:camera.position.clone(),to:d,t:0};
+}
+function goView(k){st.view=k;const v=VIEWS.find(x=>x.k===k);$("#viewTitle").textContent=v.t;$("#viewCap").textContent=v.cap;$("#facing").textContent=v.face;
+  document.querySelectorAll("#views button").forEach(b=>b.setAttribute("aria-pressed",b.id==="view-"+k));
+  if(camera)setCam(v.dir,matchMedia("(prefers-reduced-motion: reduce)").matches);}
+function hit(key,el){
+  document.querySelectorAll(".hs").forEach(b=>b.classList.toggle("on",b===el));
+  const li=[...document.querySelectorAll("#specList li")].find(l=>l.dataset.k===key);
+  document.querySelectorAll("#specList li").forEach(l=>l.classList.toggle("hit",l===li));
+  if(li)li.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+const v3=()=>new THREE.Vector3();
+function loop(){
+  requestAnimationFrame(loop);
+  if(tween){tween.t=Math.min(1,tween.t+.045);const e=1-Math.pow(1-tween.t,3);
+    const a=tween.from.clone().normalize(),b=tween.to.clone().normalize();const len=tween.from.length()+(tween.to.length()-tween.from.length())*e;
+    let dir=a.clone().lerp(b,e);if(dir.lengthSq()<1e-4)dir=new THREE.Vector3(1,0,0).lerp(b,e);
+    camera.position.copy(dir.normalize().multiplyScalar(len));if(tween.t>=1)tween=null;}
+  controls.update();renderer.render(scene,camera);
+  const w=stage.clientWidth,h=stage.clientHeight,camDir=camera.position.clone().normalize();
+  HOT.forEach(hs=>{
+    if(!cur().art && (hs.key==="Print size"||hs.key==="Down from collar")){hs.el.dataset.off="1";return;}
+    if(!hs.p){hs.el.dataset.off="1";return;}const p=new THREE.Vector3(...hs.p);p.y+=B.H/2;
+    const facing=hs.inside? camDir.z>0.55 : (hs.side>0? camDir.z>-0.1 : camDir.z<0.1);
+    const s=p.clone().project(camera);hs.el.style.left=((s.x+1)/2*w)+"px";hs.el.style.top=((1-s.y)/2*h)+"px";
+    hs.el.dataset.off=facing?"0":"1";
+  });
+}
+function render(){renderPanel();paint();}
+
+renderPanel();paint();
+Promise.all([loadImg(ART.s01.ink),loadImg(ART.s01.fill),loadImg(ART.sig)]).then(([i,f,g])=>{imgs.s01={ink:i,fill:f};imgs.sig=g;paint();});
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>paint());
+init3D();
+</script>

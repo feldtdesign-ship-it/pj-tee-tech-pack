@@ -1,0 +1,12 @@
+Copyright (c) 2026 PJ O'Rourke II. All rights reserved.
+
+This repository is public so it can be viewed. It is not open source.
+
+The artwork, PJ O'Rourke II's signature, the tee designs, and the tech pack
+spec in this repository may not be copied, reproduced, modified, distributed,
+or used for any purpose without prior written permission.
+
+Third-party material:
+- assets/tee_viewer_model_v1.glb is based on the "Comfortable T-Shirt" model
+  from BlenderKit and remains under its original license.
+- Three.js is loaded from jsDelivr and is under the MIT license.
