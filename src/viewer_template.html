@@ -404,10 +404,11 @@ function paint(){
     fc.save();fc.strokeStyle="#497CB5";fc.lineWidth=4;fc.setLineDash([22,14]);fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
     // center front line
     fc.globalAlpha=.55;fc.beginPath();fc.moveTo(X(0),Y(B.fd));fc.lineTo(X(0),Y(B.H));fc.stroke();fc.globalAlpha=1;
-    dim(fc,X(w/2+1.1),Y(B.fd),X(w/2+1.1),py,frac(st.drop),true);
+    // drop is measured at center front, so draw it there: off-centre it lands on the body edge of small women's sizes and smears round the side
+    dim(fc,X(0),Y(B.fd),X(0),py,frac(st.drop),true);
     dim(fc,px,py+ph+90,px+pw,py+ph+90,frac(w)+" print width",false);
-    dim(fc,X(-w/2-1.1),py,X(-w/2-1.1),py+ph,"",true);
-    fc.save();fc.translate(X(-w/2-1.1)-28,py+ph/2);fc.rotate(-Math.PI/2);fc.font="600 44px 'IBM Plex Mono', Menlo, monospace";const lb=frac(Math.round(h*4)/4)+" tall";const lw=fc.measureText(lb).width;fc.fillStyle="#fff";fc.fillRect(-lw/2-10,-46,lw+20,56);fc.fillStyle="#497CB5";fc.fillText(lb,-lw/2,0);fc.restore();
+    dim(fc,X(-w/2-.5),py,X(-w/2-.5),py+ph,"",true);
+    fc.save();fc.translate(X(-w/2-.5)-28,py+ph/2);fc.rotate(-Math.PI/2);fc.font="600 44px 'IBM Plex Mono', Menlo, monospace";const lb=frac(Math.round(h*4)/4)+" tall";const lw=fc.measureText(lb).width;fc.fillStyle="#fff";fc.fillRect(-lw/2-10,-46,lw+20,56);fc.fillStyle="#497CB5";fc.fillText(lb,-lw/2,0);fc.restore();
     fc.restore();
   }
   // back: signature at center back neck. Canvas is mirrored so it reads from behind.
