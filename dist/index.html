@@ -367,17 +367,19 @@ function renderPanel(){
 function rgbHex(rgb){const m=rgb.match(/\d+/g);return m?"#"+m.slice(0,3).map(x=>(+x).toString(16).padStart(2,"0")).join(""):"";}
 
 // ---------- texture ----------
-let B, PPI, TH; const TW=2048;
+// The print sheets never change size: resizing a sheet after the GPU has it leaves old paint behind
+// (stacked signatures). Each size gets its own inches-to-pixels scale across and down instead.
+let B, PPX, PPY; const TW=2048, TH=2560;
 const frontCv=document.createElement("canvas"), backCv=document.createElement("canvas");
-function setBox(){const z=sizeNow();B={minx:-z.W/2,W:z.W,H:z.H,fd:z.fd,bd:z.bd};PPI=TW/B.W;TH=Math.round(B.H*PPI);
-  [frontCv,backCv].forEach(c=>{c.width=TW;c.height=TH;});}
+[frontCv,backCv].forEach(c=>{c.width=TW;c.height=TH;});
+function setBox(){const z=sizeNow();B={minx:-z.W/2,W:z.W,H:z.H,fd:z.fd,bd:z.bd};PPX=TW/B.W;PPY=TH/B.H;}
 setBox();
 const tmp=document.createElement("canvas");
 const imgs={};
 let renderer,scene,camera,controls,fTex=null,bTex=null,collarMat=null,tween=null;
 function loadImg(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=src;});}
 function tinted(img,color){tmp.width=img.width;tmp.height=img.height;const c=tmp.getContext("2d");c.clearRect(0,0,tmp.width,tmp.height);c.drawImage(img,0,0);c.globalCompositeOperation="source-in";c.fillStyle=color;c.fillRect(0,0,tmp.width,tmp.height);c.globalCompositeOperation="source-over";return tmp;}
-const X=x=>(x-B.minx)*PPI, Y=y=>y*PPI;
+const X=x=>(x-B.minx)*PPX, Y=y=>y*PPY;
 function dim(c,x1,y1,x2,y2,label,vert){
   c.strokeStyle="#497CB5";c.fillStyle="#497CB5";c.lineWidth=5;c.setLineDash([]);
   c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();
@@ -393,7 +395,7 @@ function paint(){
   const s=cur(), fc=frontCv.getContext("2d"), bc=backCv.getContext("2d");
   [fc,bc].forEach(c=>{c.fillStyle=st.body;c.fillRect(0,0,TW,TH);});
   const top=B.fd+st.drop, w=st.width, h=printH();
-  const px=X(-w/2), py=Y(top), pw=w*PPI, ph=h*PPI;
+  const px=X(-w/2), py=Y(top), pw=w*PPX, ph=h*PPY;
   if(s.art && imgs.s01){
     if(st.fill==="print") fc.drawImage(tinted(imgs.s01.fill,"#FAFAF7"),px,py,pw,ph);
     fc.drawImage(tinted(imgs.s01.ink,st.ink),px,py,pw,ph);
@@ -417,9 +419,9 @@ function paint(){
   const sw=st.swidth, sy=B.bd+st.sdrop;
   if(s.art && imgs.sig){
     const sh=sw*imgs.sig.height/imgs.sig.width; st._sh=sh;
-    bc.drawImage(tinted(imgs.sig,st.ink),TW-X(sw/2),Y(sy),sw*PPI,sh*PPI);
+    bc.drawImage(tinted(imgs.sig,st.ink),TW-X(sw/2),Y(sy),sw*PPX,sh*PPY);
     if(st.meas){
-      bc.strokeStyle="#497CB5";bc.lineWidth=4;bc.setLineDash([18,12]);bc.strokeRect(TW-X(sw/2),Y(sy),sw*PPI,sh*PPI);bc.setLineDash([]);
+      bc.strokeStyle="#497CB5";bc.lineWidth=4;bc.setLineDash([18,12]);bc.strokeRect(TW-X(sw/2),Y(sy),sw*PPX,sh*PPY);bc.setLineDash([]);
       dim(bc,TW-X(sw/2+.8),Y(B.bd),TW-X(sw/2+.8),Y(sy),frac(st.sdrop),true);
       dim(bc,TW-X(sw/2),Y(sy+sh)+80,TW-X(-sw/2),Y(sy+sh)+80,frac(sw)+" signature",false);
     }
