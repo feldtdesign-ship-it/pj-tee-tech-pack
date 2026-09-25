@@ -28,7 +28,7 @@ STYLES = [
             ("Print size", "TBC. Starting point: artboard at 100%, 9 x 12 in"),
             ("Down from collar", "TBC. Measured at center front from the collar seam"),
             ("Back print", "Signature only, center back neck"),
-            ("Signature", "PJ's real signature file, never redrawn. Center back, below the collar. Size and drop TBC"),
+            ("Signature", "PJ's real signature file, never redrawn. Center back, below the collar, in the colourway's accent colour. Size and drop TBC"),
             ("Ink color ref", "Pantone TCX or C for each ink: TBC"),
             ("Mesh count", "Per screen: TBC with the printer"),
             ("Screen sizes", "One print size for all sizes, or tiers by size range: TBC"),
@@ -41,7 +41,7 @@ STYLES = [
             ("Ink 1", "Black line", "From file. Pantone or ink match TBC"),
             ("Ink 2", "White fills", "Open. Print white, or leave open so the shirt shows"),
             ("Underbase", "Only on dark shirts", "TBC with the printer"),
-            ("Back ink", "Signature, back neck", "Same ink as the front line. TBC"),
+            ("Back ink", "Signature, back neck", "The colourway's accent colour (Classic: black, same as the line). Pantone TBC"),
         ],
         "decisions": [
             ("White fills", "The drawing has white filled shapes inside it: the clouds, the suit, the bike. On a white or cream shirt they disappear, so it prints as one ink. On any other color they either print white (a second ink) or go open and take the shirt color. Pick one before separations."),

@@ -485,9 +485,16 @@ function init3D(){
     for(let i=0;i<n;i++){pl[i*2]=(P.getX(i)-bb.min.x)/gW;pl[i*2+1]=1+(P.getY(i)-bb.max.y)/gH;}
     g.setAttribute("planarUv",new THREE.BufferAttribute(pl,2));
     const idx=g.index.array, fr=[], bk=[], inner=[], a=new THREE.Vector3(), b=new THREE.Vector3(), c=new THREE.Vector3();
+    // Sort each triangle by which way it faces relative to the body's centre line (a vertical axis):
+    // facing outward = outside of the shirt (front or back half gets the print), facing inward = inside (plain).
+    // Depth cut-offs alone put some inside faces near the collar into front/back, printing art inside the shirt.
+    let z0=0;for(let i=0;i<n;i++)z0+=P.getZ(i);z0/=n;
+    const nrm=new THREE.Vector3(), cen=new THREE.Vector3(), out=new THREE.Vector3();
     for(let t=0;t<idx.length;t+=3){a.fromBufferAttribute(P,idx[t]);b.fromBufferAttribute(P,idx[t+1]);c.fromBufferAttribute(P,idx[t+2]);
-      const nz=b.clone().sub(a).cross(c.clone().sub(a)).z;const zc=(a.z+b.z+c.z)/3;
-      const grpT=(nz>0&&zc>-1)||zc>1.5?fr:(nz>0?inner:bk);grpT.push(idx[t],idx[t+1],idx[t+2]);}
+      nrm.copy(b).sub(a).cross(c.clone().sub(a));cen.copy(a).add(b).add(c).multiplyScalar(1/3);
+      out.set(cen.x,0,cen.z-z0);
+      const outward=nrm.dot(out)>0;
+      (outward?(cen.z>z0?fr:bk):inner).push(idx[t],idx[t+1],idx[t+2]);}
     g.setIndex([...fr,...bk,...inner]);g.clearGroups();g.addGroup(0,fr.length,0);g.addGroup(fr.length,bk.length,1);g.addGroup(fr.length+bk.length,inner.length,2);
     const nm=src.material&&src.material.normalMap||null;
     if(!innerMat)innerMat=new THREE.MeshStandardMaterial({color:st.body,roughness:.95,side:THREE.DoubleSide});
