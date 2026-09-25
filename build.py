@@ -16,6 +16,8 @@ t = t.replace("__DATA__", json.dumps({"styles": STYLES, "rules": PRINTER_RULES})
 # The viewer stretches each one to the chest + length of the chosen size (src/sizes.py, PLACEHOLDER numbers).
 from sizes import SIZE_SETS, SIZE_RUN
 t = t.replace("__SIZES__", json.dumps({"run": SIZE_RUN, "sets": {k: {kk: vv for kk, vv in v.items() if kk != "glb"} for k, v in SIZE_SETS.items()}}))
+from colourways import COLOURWAYS
+t = t.replace("__COLOURWAYS__", json.dumps(COLOURWAYS))
 t = t.replace("__GLB_UNISEX__", b64(SIZE_SETS["unisex"]["glb"], "model/gltf-binary"))
 t = t.replace("__GLB_WOMENS__", b64(SIZE_SETS["womens"]["glb"], "model/gltf-binary"))
 t = t.replace("__INK__", b64("art01_ink.png")).replace("__FILL__", b64("art01_fill.png"))

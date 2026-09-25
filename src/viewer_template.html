@@ -73,6 +73,13 @@ body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:14p
 .ctl .val{font-family:var(--m);font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
 .sw{width:34px;height:34px;border:2px solid var(--ink);cursor:pointer;padding:0;position:relative}
+.sw.cw{overflow:visible}
+.sw.cw i{position:absolute;left:8px;top:6px;width:14px;height:12px}
+.sw.cw b{position:absolute;left:12px;bottom:4px;width:6px;height:6px;border-radius:50%}
+.cwline{display:grid;gap:3px;margin-top:8px;font-size:11px;color:var(--ink)}
+.cwline span{display:flex;align-items:center;gap:6px}
+.cwline i{width:10px;height:10px;border:1px solid var(--ink);display:inline-block}
+.cwline em{font-style:normal;font-family:var(--m);font-size:10px;color:var(--muted)}
 .sw[aria-pressed="true"]::after{content:"";position:absolute;inset:-6px;border:2px solid var(--blue)}
 .seg{display:flex;border:2px solid var(--ink);width:max-content;max-width:100%}
 .seg button{font:600 12px/1 var(--b);border:0;background:#fff;padding:9px 10px;cursor:pointer}
@@ -195,13 +202,10 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
       <div class="views" id="views"></div>
       <div class="controls">
         <div class="ctl">
-          <div class="lab mono">Body color <span class="val" id="bodyVal"></span></div>
-          <div class="swatches" id="bodySw"></div>
-          <div class="note">Preview colors only. Blank colors are TBC.</div>
-        </div>
-        <div class="ctl">
-          <div class="lab mono">Line ink <span class="val" id="inkVal"></span></div>
-          <div class="swatches" id="inkSw"></div>
+          <div class="lab mono">Colourway <span class="val" id="cwVal"></span></div>
+          <div class="swatches" id="cwSw"></div>
+          <div class="cwline" id="cwLine"></div>
+          <div class="note">Sydney colour sheet, draft. Hex are starting points. Pantone TBC.</div>
         </div>
         <div class="ctl">
           <div class="lab mono">White fills</div>
@@ -223,7 +227,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
           <input type="range" id="sdrop" min="0.5" max="4" step="0.25" value="1.5">
           <div class="lab mono" style="margin-top:12px"><label for="swidth">Signature width</label> <span class="val" id="swidthVal"></span></div>
           <input type="range" id="swidth" min="2" max="6" step="0.25" value="3.5">
-          <div class="note">Center back neck. Same ink as the front line.</div>
+          <div class="note">Center back neck. Ink is the colourway's accent.</div>
         </div>
         <div class="ctl toggles">
           <div>
@@ -277,8 +281,7 @@ const SIZES = __SIZES__;
 const TEE_GLB = {unisex:"__GLB_UNISEX__", womens:"__GLB_WOMENS__"};
 const ART = {s01:{ink:"__INK__", fill:"__FILL__"}, sig:"__SIGINK__"};
 
-const BODY = [["Cream","#F3EFE4"],["White","#FAFAF7"],["Concrete grey","#A7A59E"],["Platform yellow","#F2C200"],["Royal","#1E4FD6"],["Ink black","#161616"]];
-const INKS = [["Black","#121212"],["Cream","#F3EFE4"],["Platform yellow","#F2C200"]];
+const CW = __COLOURWAYS__;   // src/colourways.py: shirt = body, print = front line, accent = back signature
 const VIEWS = [
   {k:"front", t:"Front", cap:"The side the factory prints. Numbers match the spec list.", face:"Facing you", dir:[0,0,1]},
   {k:"left", t:"Left side", cap:"His left, not yours.", face:"Facing →", dir:[1,0,0]},
@@ -292,7 +295,7 @@ const HOT = [
   {n:"4", key:"Signature", side:-1},{n:"5", key:"Blank", side:1},{n:"6", key:"Size run", side:1},
 ];
 
-const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", fill:"print", drop:3, width:9, meas:true, pins:true, view:"front", fit:"unisex", size:"M"};
+const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", sig:"#121212", cw:"classic", fill:"print", drop:3, width:9, meas:true, pins:true, view:"front", fit:"unisex", size:"M"};
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const cur = ()=>DATA.styles.find(s=>s.key===st.style);
@@ -308,8 +311,8 @@ const tbc = '<span class="tbc">TBC</span>';
 function btn(parent,html,attrs,on){const b=document.createElement("button");b.type="button";b.innerHTML=html;for(const k in attrs)b.setAttribute(k,attrs[k]);b.addEventListener("click",on);parent.appendChild(b);return b;}
 DATA.styles.forEach(s=>btn($("#styles"),`<span class="n">${s.num}</span>${esc(s.name)}`,{id:"style-"+s.key,"aria-pressed":s.key===st.style},()=>{st.style=s.key;render();}));
 VIEWS.forEach(v=>btn($("#views"),v.t,{id:"view-"+v.k,"aria-pressed":v.k===st.view},()=>goView(v.k)));
-BODY.forEach(([n,c])=>btn($("#bodySw"),"",{class:"sw",id:"body-"+n.replace(/\s/g,""),title:n,"aria-label":"Body "+n,"aria-pressed":c===st.body,style:"background:"+c},()=>{st.body=c;render();}));
-INKS.forEach(([n,c])=>btn($("#inkSw"),"",{class:"sw",id:"ink-"+n.replace(/\s/g,""),title:n,"aria-label":"Ink "+n,"aria-pressed":c===st.ink,style:"background:"+c},()=>{st.ink=c;render();}));
+function setCw(k){const c=CW.find(x=>x.key===k);st.cw=k;st.body=c.shirt[1];st.ink=c.print[1];st.sig=c.accent[1];st.fill=c.fill;}
+CW.forEach(c=>btn($("#cwSw"),`<i style="background:${c.print[1]}"></i><b style="background:${c.accent[1]}"></b>`,{class:"sw cw",id:"cw-"+c.key,title:c.name,"aria-label":"Colourway "+c.name,"aria-pressed":c.key===st.cw,style:"background:"+c.shirt[1]},()=>{setCw(c.key);render();}));
 $("#fillSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.fill=b.dataset.v;render();}));
 Object.entries(SIZES.sets).forEach(([k,f])=>btn($("#fitSeg"),esc(f.label),{id:"fit-"+k,"aria-pressed":k===st.fit},()=>{st.fit=k;applySize();render();}));
 SIZES.run.forEach(z=>btn($("#sizeSeg"),z,{id:"size-"+z,"aria-pressed":z===st.size},()=>{st.size=z;applySize();render();}));
@@ -337,10 +340,9 @@ function renderPanel(){
   $("#decide").innerHTML=s.decisions.length?`<div class="mono">Open decisions · ${s.decisions.length}</div>`+s.decisions.map(([k,v])=>`<details><summary>${esc(k)}</summary><p>${esc(v)}</p></details>`).join(""):`<div class="mono">Open decisions</div><p class="note">None yet. Add them when the art lands.</p>`;
   $("#facts").innerHTML=s.art_facts.map(([k,v])=>`<div><div class="mono">${esc(k)}</div>${v?esc(v):tbc}</div>`).join("");
   document.querySelectorAll("#styles button").forEach(b=>b.setAttribute("aria-pressed",b.id==="style-"+s.key));
-  document.querySelectorAll("#bodySw button").forEach(b=>b.setAttribute("aria-pressed",b.style.background&&rgbHex(b.style.backgroundColor)===st.body.toLowerCase()));
-  document.querySelectorAll("#inkSw button").forEach(b=>b.setAttribute("aria-pressed",rgbHex(b.style.backgroundColor)===st.ink.toLowerCase()));
-  $("#bodyVal").textContent=BODY.find(b=>b[1]===st.body)[0];
-  $("#inkVal").textContent=INKS.find(b=>b[1]===st.ink)[0];
+  document.querySelectorAll("#cwSw button").forEach(b=>b.setAttribute("aria-pressed",b.id==="cw-"+st.cw));
+  {const c=CW.find(x=>x.key===st.cw);$("#cwVal").textContent=c.num+" "+c.name;
+   $("#cwLine").innerHTML=[["Shirt",c.shirt],["Line",c.print],["Signature",c.accent]].map(([k,[n,h]])=>`<span><i style="background:${h}"></i>${k}: ${esc(n)} <em>${h}</em></span>`).join("");}
   $("#fillPrint").setAttribute("aria-pressed",st.fill==="print");$("#fillOpen").setAttribute("aria-pressed",st.fill==="open");
   $("#measOn").setAttribute("aria-pressed",st.meas);$("#measOff").setAttribute("aria-pressed",!st.meas);
   document.querySelectorAll("#fitSeg button").forEach(b=>b.setAttribute("aria-pressed",b.id==="fit-"+st.fit));
@@ -406,7 +408,7 @@ function paint(){
   const sw=st.swidth, sy=B.bd+st.sdrop;
   if(s.art && imgs.sig){
     const sh=sw*imgs.sig.height/imgs.sig.width; st._sh=sh;
-    bc.drawImage(tinted(imgs.sig,st.ink),TW-X(sw/2),Y(sy),sw*PPX,sh*PPY);
+    bc.drawImage(tinted(imgs.sig,st.sig),TW-X(sw/2),Y(sy),sw*PPX,sh*PPY);
     if(st.meas){
       bc.strokeStyle="#497CB5";bc.lineWidth=4;bc.setLineDash([18,12]);bc.strokeRect(TW-X(sw/2),Y(sy),sw*PPX,sh*PPY);bc.setLineDash([]);
       dim(bc,TW-X(sw/2+.8),Y(B.bd),TW-X(sw/2+.8),Y(sy),frac(st.sdrop),true);
