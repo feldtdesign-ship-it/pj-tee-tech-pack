@@ -51,6 +51,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:14p
 .stage canvas{display:block;width:100%;height:100%}
 .hs{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--yellow);border:2px solid var(--yellow);font:700 12px/1 var(--h);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:opacity .2s}
 .hs[data-off="1"]{opacity:0;pointer-events:none}
+.hs[hidden]{display:none}
 .hs.on{background:var(--yellow);color:var(--ink);border-color:var(--ink)}
 .facing{position:absolute;left:0;right:0;bottom:8px;text-align:center;color:var(--muted)}
 .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted)}
@@ -290,6 +291,9 @@ DATA.rules.forEach(([a,b])=>{const d=document.createElement("div");d.className="
 
 function frac(v){const w=Math.floor(v),f=v-w;const m={0:"",0.25:" 1/4",0.5:" 1/2",0.75:" 3/4"}[f];return (w||!m?w:"")+(m??"")+" in";}
 
+// Pin numbers come from the spec list order, so a pin always shows the same number as its line in the side menu.
+function pinNo(key){const i=cur().spec.findIndex(([k])=>k===key);return i<0?"":String(i+1).padStart(2,"0");}
+function numberPins(){HOT.forEach(h=>{if(!h.el)return;const n=pinNo(h.key);h.el.textContent=n;h.el.hidden=!n;});}
 function renderPanel(){
   const s=cur();
   $("#sNum").textContent="Style "+s.num;
@@ -297,6 +301,7 @@ function renderPanel(){
   $("#sKind").textContent=s.kind;
   $("#sLine").textContent=s.line;
   $("#specList").innerHTML=s.spec.map(([k,v],i)=>`<li data-k="${esc(k)}"><span class="no">${String(i+1).padStart(2,"0")}</span><div><div class="k">${esc(k)}</div><div class="v">${v?esc(v):tbc}</div></div></li>`).join("");
+  numberPins();
   $("#decide").innerHTML=s.decisions.length?`<div class="mono">Open decisions · ${s.decisions.length}</div>`+s.decisions.map(([k,v])=>`<details><summary>${esc(k)}</summary><p>${esc(v)}</p></details>`).join(""):`<div class="mono">Open decisions</div><p class="note">None yet. Add them when the art lands.</p>`;
   $("#facts").innerHTML=s.art_facts.map(([k,v])=>`<div><div class="mono">${esc(k)}</div>${v?esc(v):tbc}</div>`).join("");
   document.querySelectorAll("#styles button").forEach(b=>b.setAttribute("aria-pressed",b.id==="style-"+s.key));
@@ -443,7 +448,7 @@ function init3D(){
   controls=new THREE.OrbitControls(camera,renderer.domElement);
   controls.enableDamping=true;controls.minDistance=24;controls.maxDistance=130;controls.enablePan=false;
   controls.addEventListener("start",()=>{tween=null;});
-  HOT.forEach(h=>{const b=document.createElement("button");b.type="button";b.className="hs";b.id="hs"+h.n;b.textContent=h.n;b.setAttribute("aria-label","Spec: "+h.key);b.addEventListener("click",()=>hit(h.key,b));stage.appendChild(b);h.el=b;});
+  HOT.forEach(h=>{const b=document.createElement("button");b.type="button";b.className="hs";b.id="hs"+h.n;b.textContent=pinNo(h.key);b.hidden=!pinNo(h.key);b.setAttribute("aria-label","Spec: "+h.key);b.addEventListener("click",()=>hit(h.key,b));stage.appendChild(b);h.el=b;});
   resize();new ResizeObserver(resize).observe(stage);
   setCam(VIEWS[0].dir,true);
   paint();loop();
