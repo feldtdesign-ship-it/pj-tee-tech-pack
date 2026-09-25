@@ -65,6 +65,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:14p
 .hs{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--yellow);border:2px solid var(--yellow);font:700 12px/1 var(--h);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:opacity .2s}
 .hs[data-off="1"]{opacity:0;pointer-events:none}
 .hs[hidden]{display:none}
+.stage.nopins .hs{display:none}
+.ctl.toggles{display:flex;gap:18px;flex-wrap:wrap}
 .hs.on{background:var(--yellow);color:var(--ink);border-color:var(--ink)}
 .facing{position:absolute;left:0;right:0;bottom:8px;text-align:center;color:var(--muted)}
 .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted)}
@@ -223,11 +225,20 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
           <input type="range" id="swidth" min="2" max="6" step="0.25" value="3.5">
           <div class="note">Center back neck. Same ink as the front line.</div>
         </div>
-        <div class="ctl">
-          <div class="lab mono">Measurements</div>
-          <div class="seg" id="measSeg">
-            <button type="button" id="measOn" data-v="1" aria-pressed="true">Show</button>
-            <button type="button" id="measOff" data-v="0" aria-pressed="false">Hide</button>
+        <div class="ctl toggles">
+          <div>
+            <div class="lab mono">Measurements</div>
+            <div class="seg" id="measSeg">
+              <button type="button" id="measOn" data-v="1" aria-pressed="true">Show</button>
+              <button type="button" id="measOff" data-v="0" aria-pressed="false">Hide</button>
+            </div>
+          </div>
+          <div>
+            <div class="lab mono">Pins</div>
+            <div class="seg" id="pinSeg">
+              <button type="button" id="pinOn" data-v="1" aria-pressed="true">Show</button>
+              <button type="button" id="pinOff" data-v="0" aria-pressed="false">Hide</button>
+            </div>
           </div>
         </div>
       </div>
@@ -281,7 +292,7 @@ const HOT = [
   {n:"4", key:"Signature", side:-1},{n:"5", key:"Blank", side:1},{n:"6", key:"Size run", side:1},
 ];
 
-const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", fill:"print", drop:3, width:9, meas:true, view:"front"};
+const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", fill:"print", drop:3, width:9, meas:true, pins:true, view:"front"};
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const cur = ()=>DATA.styles.find(s=>s.key===st.style);
@@ -296,6 +307,7 @@ BODY.forEach(([n,c])=>btn($("#bodySw"),"",{class:"sw",id:"body-"+n.replace(/\s/g
 INKS.forEach(([n,c])=>btn($("#inkSw"),"",{class:"sw",id:"ink-"+n.replace(/\s/g,""),title:n,"aria-label":"Ink "+n,"aria-pressed":c===st.ink,style:"background:"+c},()=>{st.ink=c;render();}));
 $("#fillSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.fill=b.dataset.v;render();}));
 $("#measSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.meas=b.dataset.v==="1";render();}));
+$("#pinSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.pins=b.dataset.v==="1";render();}));
 $("#drop").addEventListener("input",e=>{st.drop=+e.target.value;render();});
 $("#width").addEventListener("input",e=>{st.width=+e.target.value;render();});
 $("#sdrop").addEventListener("input",e=>{st.sdrop=+e.target.value;render();});
@@ -324,6 +336,7 @@ function renderPanel(){
   $("#inkVal").textContent=INKS.find(b=>b[1]===st.ink)[0];
   $("#fillPrint").setAttribute("aria-pressed",st.fill==="print");$("#fillOpen").setAttribute("aria-pressed",st.fill==="open");
   $("#measOn").setAttribute("aria-pressed",st.meas);$("#measOff").setAttribute("aria-pressed",!st.meas);
+  $("#pinOn").setAttribute("aria-pressed",st.pins);$("#pinOff").setAttribute("aria-pressed",!st.pins);stage.classList.toggle("nopins",!st.pins);
   $("#dropVal").textContent=frac(st.drop);$("#widthVal").textContent=frac(st.width)+" x "+frac(Math.round(printH()*4)/4);
   $("#sdropVal").textContent=frac(st.sdrop);$("#swidthVal").textContent=frac(st.swidth);
   const art=s.art; ["#sdrop","#swidth","#drop","#width","#fillPrint","#fillOpen"].forEach(q=>$(q).disabled=!art);
