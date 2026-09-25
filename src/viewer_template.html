@@ -53,11 +53,17 @@ body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:14p
 .hs[data-off="1"]{opacity:0;pointer-events:none}
 .hs[hidden]{display:none}
 .stage.nopins .hs{display:none}
-.ctl.toggles{display:flex;gap:18px;flex-wrap:wrap}
+.ctl.toggles{display:flex;gap:10px;flex-wrap:wrap}
 .hs.on{background:var(--yellow);color:var(--ink);border-color:var(--ink)}
 .facing{position:absolute;left:0;right:0;bottom:8px;text-align:center;color:var(--muted)}
 .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted)}
 
+.sizebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:8px 12px}
+.sizebar .seg button{padding:7px 9px}
+.sizebar .seg.sizes button{min-width:36px}
+.sizeval{font-size:12px;color:var(--muted);line-height:1.35}
+.sizeval b{color:var(--ink);font:700 14px/1 var(--h);text-transform:uppercase;margin-right:2px}
+.sizeval .ph{display:inline-block;font-family:var(--m);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-left:6px}
 .views{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-top:2px solid var(--ink);background:var(--cream)}
 .views button{font:700 13px/1 var(--h);text-transform:uppercase;border:2px solid var(--ink);background:#fff;padding:8px 10px;cursor:pointer}
 .views button[aria-pressed="true"]{background:var(--ink);color:#fff}
@@ -134,12 +140,13 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
   .styles{margin:0}
   .styles button{padding:6px 10px;font-size:13px}
   .main{flex:1;min-height:0;align-items:stretch}
-  .panel.view{display:grid;grid-template-columns:minmax(0,1fr) 250px;grid-template-rows:auto auto minmax(0,1fr) auto;min-height:0}
+  .panel.view{display:grid;grid-template-columns:minmax(0,1fr) 250px;grid-template-rows:auto auto auto minmax(0,1fr) auto;min-height:0}
   .view .bar{grid-column:1/-1}
   .view .cap{grid-column:1;grid-row:2}
-  .view .stage{grid-column:1;grid-row:3;aspect-ratio:auto;min-height:0}
-  .view .views{grid-column:1;grid-row:4}
-  .view .controls{grid-column:2;grid-row:2/5;grid-template-columns:1fr;align-content:start;gap:10px;padding:10px 12px;border-top:0;border-left:2px solid var(--ink);overflow:auto;background:var(--paper)}
+  .view .sizebar{grid-column:1;grid-row:3}
+  .view .stage{grid-column:1;grid-row:4;aspect-ratio:auto;min-height:0}
+  .view .views{grid-column:1;grid-row:5}
+  .view .controls{grid-column:2;grid-row:2/6;grid-template-columns:1fr;align-content:start;gap:10px;padding:10px 12px;border-top:0;border-left:2px solid var(--ink);overflow:auto;background:var(--paper)}
   .view .ctl .lab{margin-bottom:5px}
   .view .note{margin-top:4px;font-size:11px;line-height:1.3}
   .view .sw{width:28px;height:28px}
@@ -149,6 +156,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
 /* short laptop screens: drop the hint lines under the controls (the spec column says the same) */
 @media (min-width:980px) and (min-height:600px) and (max-height:820px){
   .view .note{display:none}
+  .sizeval .ph{display:none}
   .view .cap{display:none}
   .view .controls{gap:8px}
 }
@@ -159,7 +167,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
     <img src="__SIG__" alt="PJ O'Rourke signature">
     <div>
       <h1 class="h t">Tee <span>Tech Pack</span> 2.0 <em class="beta">Beta</em></h1>
-      <div class="sub mono">Graphic tees · existing blank · screen print · 3D tee scaled to 29 in, placeholder</div>
+      <div class="sub mono">Graphic tees · existing blank · screen print · 3D tee sized to Bella+Canvas 3010 / 6110, placeholder</div>
     </div>
     <div class="meta">
       <div><b>Pack</b>v1 2.0</div>
@@ -175,6 +183,11 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
     <section class="panel view" aria-label="3D view">
       <div class="bar"><h2 class="h" id="viewTitle">Front</h2><span class="mono">Drag to spin · scroll or pinch to zoom · tap a number</span></div>
       <div class="cap" id="viewCap">The side the factory prints. Numbers match the spec list.</div>
+      <div class="sizebar">
+        <div class="seg" id="fitSeg" aria-label="Fit"></div>
+        <div class="seg sizes" id="sizeSeg" aria-label="Size"></div>
+        <div class="sizeval" id="sizeVal"></div>
+      </div>
       <div class="stage" id="stage">
         <div class="loading mono" id="loading">Loading the tee</div>
         <div class="facing mono" id="facing">Facing you</div>
@@ -252,7 +265,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
     </aside>
   </div>
 
-  <div class="foot mono legal"><span>© 2026 PJ O'Rourke II. All rights reserved. · Tee Tech Pack v1 2.0</span><span>Art, signature, and spec: no reuse without written permission. 3D tee is a placeholder stand-in (BlenderKit, own license), scaled to 29 in.</span></div>
+  <div class="foot mono legal"><span>© 2026 PJ O'Rourke II. All rights reserved. · Tee Tech Pack v1 2.0</span><span>Art, signature, and spec: no reuse without written permission. 3D tees are placeholder stand-ins (BlenderKit, own license), sized to Bella+Canvas 3010 / 6110 until PJ's blank is confirmed.</span></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
@@ -260,8 +273,8 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 const DATA = __DATA__;
-const MESH = __MESH__;
-const TEE_GLB = "__GLB__";
+const SIZES = __SIZES__;
+const TEE_GLB = {unisex:"__GLB_UNISEX__", womens:"__GLB_WOMENS__"};
 const ART = {s01:{ink:"__INK__", fill:"__FILL__"}, sig:"__SIGINK__"};
 
 const BODY = [["Cream","#F3EFE4"],["White","#FAFAF7"],["Concrete grey","#A7A59E"],["Platform yellow","#F2C200"],["Royal","#1E4FD6"],["Ink black","#161616"]];
@@ -279,11 +292,16 @@ const HOT = [
   {n:"4", key:"Signature", side:-1},{n:"5", key:"Blank", side:1},{n:"6", key:"Size run", side:1},
 ];
 
-const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", fill:"print", drop:3, width:9, meas:true, pins:true, view:"front"};
+const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", fill:"print", drop:3, width:9, meas:true, pins:true, view:"front", fit:"unisex", size:"M"};
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const cur = ()=>DATA.styles.find(s=>s.key===st.style);
 const printH = ()=>st.width*4/3;
+// current size: base model stretched to this size's chest (x, z) and length (y)
+const fitSet = ()=>SIZES.sets[st.fit];
+function sizeNow(){const f=fitSet(),i=SIZES.run.indexOf(st.size);const kx=f.chest[i]/f.base.chest,ky=f.length[i]/f.base.length;
+  return {chest:f.chest[i],length:f.length[i],kx,ky,W:f.base.W*kx,H:f.base.H*ky,fd:f.base.front_drop*ky,bd:f.base.back_drop*ky};}
+function frac8(v){const w=Math.floor(v),e=Math.round((v-w)*8);if(!e)return w+"";const g=e%4===0?4:e%2===0?2:1;return w+" "+(e/g)+"/"+(8/g);}
 const tbc = '<span class="tbc">TBC</span>';
 
 // ---------- UI ----------
@@ -293,6 +311,8 @@ VIEWS.forEach(v=>btn($("#views"),v.t,{id:"view-"+v.k,"aria-pressed":v.k===st.vie
 BODY.forEach(([n,c])=>btn($("#bodySw"),"",{class:"sw",id:"body-"+n.replace(/\s/g,""),title:n,"aria-label":"Body "+n,"aria-pressed":c===st.body,style:"background:"+c},()=>{st.body=c;render();}));
 INKS.forEach(([n,c])=>btn($("#inkSw"),"",{class:"sw",id:"ink-"+n.replace(/\s/g,""),title:n,"aria-label":"Ink "+n,"aria-pressed":c===st.ink,style:"background:"+c},()=>{st.ink=c;render();}));
 $("#fillSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.fill=b.dataset.v;render();}));
+Object.entries(SIZES.sets).forEach(([k,f])=>btn($("#fitSeg"),esc(f.label),{id:"fit-"+k,"aria-pressed":k===st.fit},()=>{st.fit=k;applySize();render();}));
+SIZES.run.forEach(z=>btn($("#sizeSeg"),z,{id:"size-"+z,"aria-pressed":z===st.size},()=>{st.size=z;applySize();render();}));
 $("#measSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.meas=b.dataset.v==="1";render();}));
 $("#pinSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.pins=b.dataset.v==="1";render();}));
 $("#drop").addEventListener("input",e=>{st.drop=+e.target.value;render();});
@@ -323,6 +343,9 @@ function renderPanel(){
   $("#inkVal").textContent=INKS.find(b=>b[1]===st.ink)[0];
   $("#fillPrint").setAttribute("aria-pressed",st.fill==="print");$("#fillOpen").setAttribute("aria-pressed",st.fill==="open");
   $("#measOn").setAttribute("aria-pressed",st.meas);$("#measOff").setAttribute("aria-pressed",!st.meas);
+  document.querySelectorAll("#fitSeg button").forEach(b=>b.setAttribute("aria-pressed",b.id==="fit-"+st.fit));
+  document.querySelectorAll("#sizeSeg button").forEach(b=>b.setAttribute("aria-pressed",b.id==="size-"+st.size));
+  {const z=sizeNow(),f=fitSet();$("#sizeVal").innerHTML=`<b>${esc(f.label)} ${st.size}</b> · chest ${frac8(z.chest)} in · length ${frac8(z.length)} in <span class="ph">Placeholder: ${esc(f.blank)}</span>`;}
   $("#pinOn").setAttribute("aria-pressed",st.pins);$("#pinOff").setAttribute("aria-pressed",!st.pins);stage.classList.toggle("nopins",!st.pins);
   $("#dropVal").textContent=frac(st.drop);$("#widthVal").textContent=frac(st.width)+" x "+frac(Math.round(printH()*4)/4);
   $("#sdropVal").textContent=frac(st.sdrop);$("#swidthVal").textContent=frac(st.swidth);
@@ -331,9 +354,11 @@ function renderPanel(){
 function rgbHex(rgb){const m=rgb.match(/\d+/g);return m?"#"+m.slice(0,3).map(x=>(+x).toString(16).padStart(2,"0")).join(""):"";}
 
 // ---------- texture ----------
-const B=MESH.bbox, TW=2048, PPI=TW/B.W, TH=Math.round(B.H*PPI);
-const frontCv=document.createElement("canvas");frontCv.width=TW;frontCv.height=TH;
-const backCv=document.createElement("canvas");backCv.width=TW;backCv.height=TH;
+let B, PPI, TH; const TW=2048;
+const frontCv=document.createElement("canvas"), backCv=document.createElement("canvas");
+function setBox(){const z=sizeNow();B={minx:-z.W/2,W:z.W,H:z.H,fd:z.fd,bd:z.bd};PPI=TW/B.W;TH=Math.round(B.H*PPI);
+  [frontCv,backCv].forEach(c=>{c.width=TW;c.height=TH;});}
+setBox();
 const tmp=document.createElement("canvas");
 const imgs={};
 let renderer,scene,camera,controls,fTex=null,bTex=null,collarMat=null,tween=null;
@@ -354,7 +379,7 @@ function dim(c,x1,y1,x2,y2,label,vert){
 function paint(){
   const s=cur(), fc=frontCv.getContext("2d"), bc=backCv.getContext("2d");
   [fc,bc].forEach(c=>{c.fillStyle=st.body;c.fillRect(0,0,TW,TH);});
-  const top=MESH.frontDrop+st.drop, w=st.width, h=printH();
+  const top=B.fd+st.drop, w=st.width, h=printH();
   const px=X(-w/2), py=Y(top), pw=w*PPI, ph=h*PPI;
   if(s.art && imgs.s01){
     if(st.fill==="print") fc.drawImage(tinted(imgs.s01.fill,"#FAFAF7"),px,py,pw,ph);
@@ -367,8 +392,8 @@ function paint(){
   if(st.meas){
     fc.save();fc.strokeStyle="#497CB5";fc.lineWidth=4;fc.setLineDash([22,14]);fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
     // center front line
-    fc.globalAlpha=.55;fc.beginPath();fc.moveTo(X(0),Y(MESH.frontDrop));fc.lineTo(X(0),Y(B.H));fc.stroke();fc.globalAlpha=1;
-    dim(fc,X(w/2+1.1),Y(MESH.frontDrop),X(w/2+1.1),py,frac(st.drop),true);
+    fc.globalAlpha=.55;fc.beginPath();fc.moveTo(X(0),Y(B.fd));fc.lineTo(X(0),Y(B.H));fc.stroke();fc.globalAlpha=1;
+    dim(fc,X(w/2+1.1),Y(B.fd),X(w/2+1.1),py,frac(st.drop),true);
     dim(fc,px,py+ph+90,px+pw,py+ph+90,frac(w)+" print width",false);
     dim(fc,X(-w/2-1.1),py,X(-w/2-1.1),py+ph,"",true);
     fc.save();fc.translate(X(-w/2-1.1)-28,py+ph/2);fc.rotate(-Math.PI/2);fc.font="600 44px 'IBM Plex Mono', Menlo, monospace";const lb=frac(Math.round(h*4)/4)+" tall";const lw=fc.measureText(lb).width;fc.fillStyle="#fff";fc.fillRect(-lw/2-10,-46,lw+20,56);fc.fillStyle="#497CB5";fc.fillText(lb,-lw/2,0);fc.restore();
@@ -376,13 +401,13 @@ function paint(){
   }
   // back: signature at center back neck. Canvas is mirrored so it reads from behind.
   bc.save();bc.translate(TW,0);bc.scale(-1,1);
-  const sw=st.swidth, sy=MESH.backDrop+st.sdrop;
+  const sw=st.swidth, sy=B.bd+st.sdrop;
   if(s.art && imgs.sig){
     const sh=sw*imgs.sig.height/imgs.sig.width; st._sh=sh;
     bc.drawImage(tinted(imgs.sig,st.ink),TW-X(sw/2),Y(sy),sw*PPI,sh*PPI);
     if(st.meas){
       bc.strokeStyle="#497CB5";bc.lineWidth=4;bc.setLineDash([18,12]);bc.strokeRect(TW-X(sw/2),Y(sy),sw*PPI,sh*PPI);bc.setLineDash([]);
-      dim(bc,TW-X(sw/2+.8),Y(MESH.backDrop),TW-X(sw/2+.8),Y(sy),frac(st.sdrop),true);
+      dim(bc,TW-X(sw/2+.8),Y(B.bd),TW-X(sw/2+.8),Y(sy),frac(st.sdrop),true);
       dim(bc,TW-X(sw/2),Y(sy+sh)+80,TW-X(-sw/2),Y(sy+sh)+80,frac(sw)+" signature",false);
     }
   } else if(st.meas){
@@ -398,18 +423,18 @@ function shade(hex,a){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b
 
 // ---------- 3D ----------
 const stage=$("#stage");
-let teeMesh=null, innerMat=null;
+let teeMesh=null, innerMat=null; const TEES={};
 const ray=()=>new THREE.Raycaster();
 function surf(x,y,from){ // point on the tee surface, seen from the front (+1) or back (-1)
   if(!teeMesh)return [x,y,0];
-  const r=ray();r.set(new THREE.Vector3(x,y,60*from),new THREE.Vector3(0,0,-from));
+  const r=ray();r.set(new THREE.Vector3(x,y+B.H/2,90*from),new THREE.Vector3(0,0,-from));
   const h=r.intersectObject(teeMesh,false)[0];
-  return h?[h.point.x,h.point.y,h.point.z+.25*from]:[x,y,0];
+  return h?[h.point.x,h.point.y-B.H/2,h.point.z+.25*from]:[x,y,0];
 }
 function updateHot(){
-  const top=MESH.frontDrop+st.drop;
-  const pos={"Print size":surf(0,-(top+printH()/2),1),"Down from collar":surf(0,-(MESH.frontDrop+st.drop/2),1),
-    "Neck label":surf(0,-.9,1),"Signature":surf(0,-(MESH.backDrop+st.sdrop+(st._sh||1)/2),-1),"Blank":surf(-9.6,-6.2,1),"Size run":surf(7.5,-27.4,1)};
+  const top=B.fd+st.drop;
+  const pos={"Print size":surf(0,-(top+printH()/2),1),"Down from collar":surf(0,-(B.fd+st.drop/2),1),
+    "Neck label":surf(0,-.9,1),"Signature":surf(0,-(B.bd+st.sdrop+(st._sh||1)/2),-1),"Blank":surf(-.41*B.W,-.214*B.H,1),"Size run":surf(.24*B.W,-.93*B.H,1)};
   HOT.forEach(h=>h.p=pos[h.key]);
 }
 function planarMaterial(tex,normalMap,flip){
@@ -437,38 +462,50 @@ function init3D(){
   const rim=new THREE.DirectionalLight(0xffffff,.32);rim.position.set(-30,10,-30);scene.add(rim);
   fTex=new THREE.CanvasTexture(frontCv);bTex=new THREE.CanvasTexture(backCv);
   [fTex,bTex].forEach(t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;});
-  new THREE.GLTFLoader().parse(b64buf(TEE_GLB),"",gl=>{
+  // Two base tees (unisex, women's). Each is split into front / back / inside faces once,
+  // with the print canvases projected flat onto it. A size is just a stretch of the mesh.
+  const grp=new THREE.Group();scene.add(grp);window.teeGrp=grp;
+  const load=k=>new Promise(res=>new THREE.GLTFLoader().parse(b64buf(TEE_GLB[k]),"",gl=>{
     let src=null;gl.scene.traverse(o=>{if(o.isMesh&&!src)src=o;});
-    const g=src.geometry.index?src.geometry:src.geometry;
-    const P=g.attributes.position, n=P.count, pl=new Float32Array(n*2);
-    for(let i=0;i<n;i++){pl[i*2]=(P.getX(i)-B.minx)/B.W;pl[i*2+1]=1+P.getY(i)/B.H;}
+    const g=src.geometry, P=g.attributes.position, n=P.count;
+    g.computeBoundingBox();const bb=g.boundingBox, gW=bb.max.x-bb.min.x, gH=bb.max.y-bb.min.y;
+    const f=SIZES.sets[k];f.base.W=gW;f.base.H=gH;   // exact model box, so the print lands in true inches
+    const pl=new Float32Array(n*2);
+    for(let i=0;i<n;i++){pl[i*2]=(P.getX(i)-bb.min.x)/gW;pl[i*2+1]=1+(P.getY(i)-bb.max.y)/gH;}
     g.setAttribute("planarUv",new THREE.BufferAttribute(pl,2));
-    // split triangles: facing front vs back
-    const idx=g.index.array, f=[], bk=[], inner=[], a=new THREE.Vector3(), b=new THREE.Vector3(), c=new THREE.Vector3();
+    const idx=g.index.array, fr=[], bk=[], inner=[], a=new THREE.Vector3(), b=new THREE.Vector3(), c=new THREE.Vector3();
     for(let t=0;t<idx.length;t+=3){a.fromBufferAttribute(P,idx[t]);b.fromBufferAttribute(P,idx[t+1]);c.fromBufferAttribute(P,idx[t+2]);
       const nz=b.clone().sub(a).cross(c.clone().sub(a)).z;const zc=(a.z+b.z+c.z)/3;
-      const grpT=(nz>0&&zc>-1)||zc>1.5?f:(nz>0?inner:bk);grpT.push(idx[t],idx[t+1],idx[t+2]);}
-    g.setIndex([...f,...bk,...inner]);g.clearGroups();g.addGroup(0,f.length,0);g.addGroup(f.length,bk.length,1);g.addGroup(f.length+bk.length,inner.length,2);
-    // back print reads from behind: mirror u for the back group via a second attribute is overkill; flip the back canvas instead
+      const grpT=(nz>0&&zc>-1)||zc>1.5?fr:(nz>0?inner:bk);grpT.push(idx[t],idx[t+1],idx[t+2]);}
+    g.setIndex([...fr,...bk,...inner]);g.clearGroups();g.addGroup(0,fr.length,0);g.addGroup(fr.length,bk.length,1);g.addGroup(fr.length+bk.length,inner.length,2);
     const nm=src.material&&src.material.normalMap||null;
-    innerMat=new THREE.MeshStandardMaterial({color:st.body,normalMap:nm,roughness:.95,side:THREE.DoubleSide});
-    teeMesh=new THREE.Mesh(g,[planarMaterial(fTex,nm),planarMaterial(bTex,nm),innerMat]);
-    const grp=new THREE.Group();grp.add(teeMesh);grp.position.y=B.H/2;scene.add(grp);teeMesh.updateMatrixWorld(true);
-    window.teeGrp=grp;
-    updateHot();
-    $("#loading").remove();
-  });
+    if(!innerMat)innerMat=new THREE.MeshStandardMaterial({color:st.body,roughness:.95,side:THREE.DoubleSide});
+    const m=new THREE.Mesh(g,[planarMaterial(fTex,nm),planarMaterial(bTex,nm),innerMat]);
+    m.position.y=-bb.max.y;m.visible=false;grp.add(m);TEES[k]=m;res();
+  }));
+  Promise.all(Object.keys(TEE_GLB).map(load)).then(()=>{applySize();$("#loading").remove();});
   controls=new THREE.OrbitControls(camera,renderer.domElement);
-  controls.enableDamping=true;controls.minDistance=24;controls.maxDistance=130;controls.enablePan=false;
+  controls.enableDamping=true;controls.minDistance=20;controls.maxDistance=170;controls.enablePan=false;
   controls.addEventListener("start",()=>{tween=null;});
   HOT.forEach(h=>{const b=document.createElement("button");b.type="button";b.className="hs";b.id="hs"+h.n;b.textContent=pinNo(h.key);b.hidden=!pinNo(h.key);b.setAttribute("aria-label","Spec: "+h.key);b.addEventListener("click",()=>hit(h.key,b));stage.appendChild(b);h.el=b;});
   resize();new ResizeObserver(resize).observe(stage);
   setCam(VIEWS[0].dir,true);
   paint();loop();
 }
+function applySize(){
+  setBox();
+  if(TEES[st.fit]){
+    Object.entries(TEES).forEach(([k,m])=>m.visible=k===st.fit);
+    teeMesh=TEES[st.fit];const z=sizeNow();
+    window.teeGrp.scale.set(z.kx,z.ky,z.kx);window.teeGrp.position.y=B.H/2;window.teeGrp.updateMatrixWorld(true);
+    if(camera&&!tween){camera.position.setLength(camDist(camera.position.clone().normalize()));}
+  }
+  paint();
+}
+function camDist(dir){return (camera.aspect<1?96:74)*Math.max(.82,Math.max(B.H/29,B.W/23.5*.95));}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
 function setCam(dir,jump){
-  const d=new THREE.Vector3(...dir).normalize().multiplyScalar(camera.aspect<1?96:74);
+  const d=new THREE.Vector3(...dir).normalize();d.multiplyScalar(camDist(d));
   if(jump){camera.position.copy(d);controls.target.set(0,0,0);controls.update();return;}
   tween={from:camera.position.clone(),to:d,t:0};
 }

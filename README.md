@@ -32,6 +32,13 @@ Live page: https://feldtdesign-ship-it.github.io/pj-tee-tech-pack/
 - It's scaled to a **placeholder** 29 in body length until the blank spec lands. When it does, change the scale in Blender, re-export, and update `bbox` and `frontDrop` in `build.py`.
 - Origin is the top of the back collar. 1 unit = 1 in.
 
+## Sizes
+
+- Pick **Unisex / Women's** and **XS to 3XL** above the 3D view. The tee stretches to that size's chest and body length.
+- Numbers live in `src/sizes.py` (not `data.py`). They are a **placeholder**: Bella+Canvas 3010 (unisex) and 6110 (women's), 6 oz heavyweight, from their published measurement reports. Those list chest and length only, so sleeves, shoulder and neck stretch with the body.
+- The two base tees come from `blender/Shirts.blend` in the main PJ folder (kept off GitHub): `assets/tee_viewer_model_v1.glb` (unisex) and `assets/tee_viewer_model_womens_v1.glb` (women's fitted, exported 2026-09-24). Export rules: 1 unit = 1 in, centred, top of collar at 0, front facing forward, about 40k points, normal map only.
+- When PJ's real blank is confirmed, swap the numbers in `src/sizes.py` and rebuild.
+
 ## Add a style
 
 1. Put the art through `python3 tools_split_art.py "art.ai" art02`.

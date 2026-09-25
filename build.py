@@ -12,9 +12,12 @@ A = ROOT / "assets"
 b64 = lambda p, m="image/png": f"data:{m};base64," + base64.b64encode((A / p).read_bytes()).decode()
 t = (ROOT / "src/viewer_template.html").read_text()
 t = t.replace("__DATA__", json.dumps({"styles": STYLES, "rules": PRINTER_RULES}))
-# Tee model: exported from Blender, scaled to a PLACEHOLDER 29 in body length. Origin = top of back collar, 1 unit = 1 in.
-t = t.replace("__MESH__", json.dumps({"bbox": {"minx": -11.75, "W": 23.5, "H": 29.0}, "frontDrop": 1.69, "backDrop": 0.0}))
-t = t.replace("__GLB__", b64("tee_viewer_model_v1.glb", "model/gltf-binary"))
+# Tee models: exported from blender/Shirts.blend. Origin = top of collar, centred, 1 unit = 1 in.
+# The viewer stretches each one to the chest + length of the chosen size (src/sizes.py, PLACEHOLDER numbers).
+from sizes import SIZE_SETS, SIZE_RUN
+t = t.replace("__SIZES__", json.dumps({"run": SIZE_RUN, "sets": {k: {kk: vv for kk, vv in v.items() if kk != "glb"} for k, v in SIZE_SETS.items()}}))
+t = t.replace("__GLB_UNISEX__", b64(SIZE_SETS["unisex"]["glb"], "model/gltf-binary"))
+t = t.replace("__GLB_WOMENS__", b64(SIZE_SETS["womens"]["glb"], "model/gltf-binary"))
 t = t.replace("__INK__", b64("art01_ink.png")).replace("__FILL__", b64("art01_fill.png"))
 t = t.replace("__SIGINK__", b64("PJ_Signature_ink_transparent.png")).replace("__SIG__", b64("PJ_Signature_cream_transparent.png"))
 (ROOT / "dist").mkdir(exist_ok=True)
