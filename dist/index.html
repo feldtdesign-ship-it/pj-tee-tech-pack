@@ -44,6 +44,11 @@ body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:14p
 
 /* style picker */
 .styles{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px}
+.navrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pdfbtn{font:700 15px/1 var(--h);text-transform:uppercase;letter-spacing:.02em;border:2px solid var(--ink);background:var(--ink);color:var(--yellow);padding:10px 14px;text-decoration:none;display:inline-flex;gap:8px;align-items:center}
+.pdfbtn span{font:500 10px/1 var(--m);letter-spacing:.16em;background:var(--yellow);color:var(--ink);padding:4px 6px}
+.pdfbtn:hover{background:#2a2a2a}
+.pdfbtn:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .styles button{font:700 15px/1 var(--h);text-transform:uppercase;letter-spacing:.02em;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:10px 14px;cursor:pointer;display:flex;gap:10px;align-items:center}
 .styles button .n{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
 .styles button[aria-pressed="true"]{background:var(--yellow)}
@@ -159,6 +164,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
   .meta div{min-width:0}
   .styles{margin:0}
   .styles button{padding:6px 10px;font-size:13px}
+  .pdfbtn{padding:6px 10px;font-size:13px}
   .main{flex:1;min-height:0;align-items:stretch}
   .panel.view{display:grid;grid-template-columns:minmax(0,1fr) 250px;grid-template-rows:auto auto auto minmax(0,1fr) auto;min-height:0}
   .view .bar{grid-column:1/-1}
@@ -197,7 +203,8 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
     </div>
   </header>
 
-  <nav class="styles" id="styles" aria-label="Styles"></nav>
+  <div class="navrow"><nav class="styles" id="styles" aria-label="Styles"></nav>
+    <a class="pdfbtn" href="PJ_Tee_Tech_Pack.pdf" download>Download tech pack <span>PDF</span></a></div>
 
   <div class="main">
     <section class="panel view" aria-label="3D view">
@@ -500,7 +507,8 @@ function init3D(){
     const m=new THREE.Mesh(g,[planarMaterial(fTex,nm),planarMaterial(bTex,nm),innerMat]);
     m.position.y=-bb.max.y;m.visible=false;grp.add(m);TEES[k]=m;res();
   }));
-  Promise.all(Object.keys(TEE_GLB).map(load)).then(()=>{applySize();$("#loading").remove();});
+  Promise.all(Object.keys(TEE_GLB).map(load)).then(()=>{applySize();$("#loading").remove();
+    if(location.hash==="#render")artReady.then(()=>(document.fonts?document.fonts.ready:0)).then(renderShots);});
   controls=new THREE.OrbitControls(camera,renderer.domElement);
   controls.enableDamping=true;controls.minDistance=20;controls.maxDistance=170;controls.enablePan=false;
   controls.addEventListener("start",()=>{tween=null;});
@@ -554,8 +562,25 @@ function loop(){
 }
 function render(){renderPanel();paint();}
 
+// ---------- render mode (used by build.py for the PDF) ----------
+// Open the page with #render and it photographs a fixed list of views, then POSTs them as JSON
+// to /__renders (build.py runs a tiny local server for this) and sets the title to RENDERS_DONE.
+async function renderShots(){
+  const SH=[{"id": "s01_front", "cw": "classic", "st": {"style": "s01", "meas": true, "view": "front"}}, {"id": "s01_back", "cw": "classic", "st": {"style": "s01", "meas": true, "view": "back"}}, {"id": "s01_q", "cw": "classic", "st": {"style": "s01", "view": "q"}}, {"id": "s01_w_front", "cw": "classic", "st": {"style": "s01", "fit": "womens", "meas": true, "view": "front"}}, {"id": "s01_w_back", "cw": "classic", "st": {"style": "s01", "fit": "womens", "meas": true, "view": "back"}}, {"id": "cw_classic_front", "cw": "classic", "st": {"style": "s01", "view": "front"}}, {"id": "cw_classic_back", "cw": "classic", "st": {"style": "s01", "view": "back"}}, {"id": "cw_harbour_front", "cw": "harbour", "st": {"style": "s01", "view": "front"}}, {"id": "cw_harbour_back", "cw": "harbour", "st": {"style": "s01", "view": "back"}}, {"id": "cw_jacaranda_front", "cw": "jacaranda", "st": {"style": "s01", "view": "front"}}, {"id": "cw_jacaranda_back", "cw": "jacaranda", "st": {"style": "s01", "view": "back"}}, {"id": "cw_bush_front", "cw": "bush", "st": {"style": "s01", "view": "front"}}, {"id": "cw_bush_back", "cw": "bush", "st": {"style": "s01", "view": "back"}}, {"id": "cw_sandstone_front", "cw": "sandstone", "st": {"style": "s01", "view": "front"}}, {"id": "cw_sandstone_back", "cw": "sandstone", "st": {"style": "s01", "view": "back"}}, {"id": "s02_front", "cw": "classic", "st": {"style": "s02", "meas": true, "view": "front"}}, {"id": "s02_back", "cw": "classic", "st": {"style": "s02", "meas": true, "view": "back"}}], out={}, W=900, H=1200;
+  renderer.setPixelRatio(1);renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();
+  for(const sh of SH){
+    Object.assign(st,{meas:false,pins:false,fit:"unisex",size:"M",view:"front"},sh.st||{});
+    if(sh.cw)setCw(sh.cw);if(sh.st&&"fill" in sh.st)st.fill=sh.st.fill;
+    applySize();renderPanel();paint();
+    const v=VIEWS.find(x=>x.k===st.view);const d=new THREE.Vector3(...v.dir).normalize();
+    camera.position.copy(d.multiplyScalar(camDist(d)*.8));controls.target.set(0,0,0);controls.update();
+    renderer.render(scene,camera);out[sh.id]=renderer.domElement.toDataURL("image/png");
+  }
+  window.RENDERS=out;document.title="RENDERS_DONE";
+  fetch("/__renders",{method:"POST",body:JSON.stringify(out)}).catch(()=>{});
+}
 renderPanel();paint();
-Promise.all([loadImg(ART.s01.ink),loadImg(ART.s01.fill),loadImg(ART.sig)]).then(([i,f,g])=>{imgs.s01={ink:i,fill:f};imgs.sig=g;paint();});
+const artReady=Promise.all([loadImg(ART.s01.ink),loadImg(ART.s01.fill),loadImg(ART.sig)]);artReady.then(([i,f,g])=>{imgs.s01={ink:i,fill:f};imgs.sig=g;paint();});
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>paint());
 init3D();
 </script>

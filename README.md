@@ -26,6 +26,19 @@ The build also makes the link preview (unfurl card): `dist/og-card.png` from `sr
 
 Live page: https://feldtdesign-ship-it.github.io/pj-tee-tech-pack/
 
+## The PDF tech pack
+
+`python3 build.py` also makes `dist/PJ_Tee_Tech_Pack.pdf` (tabloid landscape, Cowork's v1 layout), linked from the page's **Download tech pack** button. It is built from the same data (`data.py`, `sizes.py`, `colourways.py`) and the same 3D renders as the page, so the two always match:
+
+1. The build serves `dist/` on a local port and opens the page in headless Chrome with `#render`. The page photographs 17 views (front, back, 3/4, women's, every colourway) and posts them back.
+2. `src/pdf.py` lays out the sheets. `tools/print_pdf.mjs` prints them through Chrome's DevTools connection (Chrome 153's own `--print-to-pdf` hangs on this Mac). Needs **Node 22+** and **Google Chrome**.
+
+Pages: cover, read me, then per style: turnaround, print and placement, colourways (styles with art), measurements / finishing / sign off.
+
+## Colourways
+
+`src/colourways.py`, from the PJ Sydney colour sheet (draft): Classic, Harbour, Jacaranda, Bush, Sandstone. Shirt = body, print = front line (fills open), accent = PJ's signature at the back neck. Hex are starting points; Pantone TBC.
+
 ## The tee model
 
 - `assets/tee_viewer_model_v1.glb` was exported from the "Comfortable T-Shirt" in Blender (a BlenderKit model: check its license before public use).
