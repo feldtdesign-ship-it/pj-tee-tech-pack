@@ -35,6 +35,15 @@ Live page: https://feldtdesign-ship-it.github.io/pj-tee-tech-pack/
 
 Pages: cover, read me, then per style: turnaround, print and placement, colourways (styles with art), measurements / finishing / sign off.
 
+## Fabric look (v2)
+
+PJ's note on v1: the tees looked like plastic. The web models are too low-detail for a page-drawn knit, so the cloth look is **baked in Blender**: soft fold shadows (ambient occlusion) from the full-detail tees plus a fine cotton grain, one grey image per tee (`assets/tee_fabric_shade_unisex.jpg`, `assets/tee_fabric_shade_womens.jpg`). The page multiplies colour and print by it, adds soft studio light and a light cotton sheen. Colourways and print still switch live; no tone mapping, so hex codes read true.
+
+- Bake setup: `blender/Shirts_fabric_bake.blend` in the main PJ folder, scene **Fabric Bake** (README text block inside). Full-size bakes: `blender/fabric_bake/`. Each bake takes about 5 s.
+- The page's image is a cleaned copy: hem and cuff turn-ups (two layers about 1 mm apart bake near black) lifted to a soft band, fine grain added, 1024 px.
+- Tuning: `FAB` at the top of the fabric section in `src/viewer_template.html`, or `fabric({...})` in the browser console.
+- **v1** (before the fabric look) is tagged in git: `git checkout v1` to see it.
+
 ## Colourways
 
 `src/colourways.py`, from the PJ Sydney colour sheet (draft): Classic, Harbour, Jacaranda, Bush, Sandstone. Shirt = body, print = front line (fills open), accent = PJ's signature at the back neck. Hex are starting points; Pantone TBC.

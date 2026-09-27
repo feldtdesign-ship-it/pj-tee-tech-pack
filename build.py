@@ -32,6 +32,8 @@ t = t.replace("__SHOTS__", json.dumps(SHOTS))
 t = t.replace("__COLOURWAYS__", json.dumps(COLOURWAYS))
 t = t.replace("__GLB_UNISEX__", b64(SIZE_SETS["unisex"]["glb"], "model/gltf-binary"))
 t = t.replace("__GLB_WOMENS__", b64(SIZE_SETS["womens"]["glb"], "model/gltf-binary"))
+# Baked cloth shading per tee (fold shadows + cotton grain), from blender/Shirts.blend. See README "Fabric look".
+t = t.replace("__SHADE_UNISEX__", b64("tee_fabric_shade_unisex.jpg", "image/jpeg")).replace("__SHADE_WOMENS__", b64("tee_fabric_shade_womens.jpg", "image/jpeg"))
 t = t.replace("__INK__", b64("art01_ink.png")).replace("__FILL__", b64("art01_fill.png"))
 t = t.replace("__SIGINK__", b64("PJ_Signature_ink_transparent.png")).replace("__SIG__", b64("PJ_Signature_cream_transparent.png"))
 (ROOT / "dist").mkdir(exist_ok=True)

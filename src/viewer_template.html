@@ -282,10 +282,12 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/environments/RoomEnvironment.js"></script>
 <script>
 const DATA = __DATA__;
 const SIZES = __SIZES__;
 const TEE_GLB = {unisex:"__GLB_UNISEX__", womens:"__GLB_WOMENS__"};
+const TEE_SHADE = {unisex:"__SHADE_UNISEX__", womens:"__SHADE_WOMENS__"};   // baked fold shadows + cotton grain (Blender)
 const ART = {s01:{ink:"__INK__", fill:"__FILL__"}, sig:"__SIGINK__"};
 
 const CW = __COLOURWAYS__;   // src/colourways.py: shirt = body, print = front line, accent = back signature
@@ -428,7 +430,8 @@ function paint(){
   }
   bc.restore();
   if(fTex){fTex.needsUpdate=true;bTex.needsUpdate=true;}
-  if(innerMat)innerMat.color.set(st.body).convertSRGBToLinear();
+  INNER_MATS.forEach(m=>m.color.set(st.body).convertSRGBToLinear());
+  if(FABRIC_MATS.length)tintSheen();
   if(teeMesh)updateHot();
 }
 function shade(hex,a){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(v+(a<0?v*a:(255-v)*a))));return "#"+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,"0")).join("");}
@@ -449,17 +452,54 @@ function updateHot(){
     "Neck label":surf(0,-.9,1),"Signature":surf(0,-(B.bd+st.sdrop+(st._sh||1)/2),-1),"Blank":surf(-.41*B.W,-.214*B.H,1),"Size run":surf(.24*B.W,-.93*B.H,1)};
   HOT.forEach(h=>h.p=pos[h.key]);
 }
-function planarMaterial(tex,normalMap,flip){
-  const m=new THREE.MeshStandardMaterial({map:tex,normalMap:normalMap||null,roughness:.95,metalness:0,side:THREE.DoubleSide});
+// ---------- fabric ----------
+// PJ's note on v1: "the T-shirts look like plastic". A page-drawn knit didn't work (the web models are too
+// low-detail: fine grain vanishes, coarse grain reads as corduroy). So the cloth look is baked in Blender
+// instead: soft fold shadows (ambient occlusion) from the full-detail tees, plus a fine cotton grain, saved
+// as a grey image per tee (assets/tee_fabric_shade_*.jpg). The page multiplies the colour and print by it,
+// so colourways and print still switch live. Soft studio light and a light cotton sheen on top.
+// No tone mapping, so the colourway hex codes still read true.
+const FAB={shade:.85, sheen:.3, sheenRough:.8, sheenTint:.3, rough:.92, env:.3, hemi:.34, key:.6, rim:.28};
+const SHADE={}; const FABRIC_MATS=[], INNER_MATS=[], LIGHTS={};
+function shadeTex(k){
+  if(SHADE[k])return SHADE[k];
+  const im=new Image();const t=new THREE.Texture(im);
+  // render mode (PDF) must wait for this, or it photographs the tee before the shading has loaded
+  t.userData.ready=new Promise(res=>{im.onload=()=>{t.needsUpdate=true;res();};im.onerror=res;});
+  im.src=TEE_SHADE[k];
+  t.flipY=false;            // glTF UV convention
+  t.encoding=THREE.LinearEncoding;t.anisotropy=8;
+  return SHADE[k]=t;
+}
+function planarMaterial(tex,normalMap,k){
+  const m=new THREE.MeshPhysicalMaterial({map:tex,normalMap:normalMap||null,roughness:FAB.rough,metalness:0,
+    sheen:FAB.sheen,sheenRoughness:FAB.sheenRough,sheenColor:new THREE.Color(1,1,1),specularIntensity:.15,envMapIntensity:FAB.env,side:THREE.DoubleSide});
   if(normalMap)m.normalScale=new THREE.Vector2(.9,.9);
+  m.userData.shadeTex=shadeTex(k);
   m.onBeforeCompile=sh=>{
+    m.userData.sh=sh;
+    sh.uniforms.shadeMap={value:m.userData.shadeTex};sh.uniforms.shadeAmt={value:FAB.shade};
     sh.vertexShader=sh.vertexShader.replace("#include <common>","#include <common>\nattribute vec2 planarUv;\nvarying vec2 vPlanar;")
       .replace("#include <uv_vertex>","#include <uv_vertex>\nvPlanar=planarUv;");
-    sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nvarying vec2 vPlanar;")
-      .replace("#include <map_fragment>","vec4 sampledDiffuseColor=gl_FrontFacing?texture2D(map,vPlanar):texture2D(map,vec2(.002,.002));\ndiffuseColor*=sampledDiffuseColor;");
+    sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nvarying vec2 vPlanar;\nuniform sampler2D shadeMap;uniform float shadeAmt;")
+      .replace("#include <map_fragment>","vec4 sampledDiffuseColor=gl_FrontFacing?texture2D(map,vPlanar):texture2D(map,vec2(.002,.002));\ndiffuseColor*=sampledDiffuseColor;\nfloat fab=texture2D(shadeMap,vUv).r;\ndiffuseColor.rgb*=mix(1.0,min(1.0,fab*1.06),shadeAmt);");
   };
+  FABRIC_MATS.push(m);
   return m;
 }
+function innerMaterial(k){
+  // inside of the shirt: plain body colour, same baked shading
+  const m=new THREE.MeshPhysicalMaterial({color:st.body,map:shadeTex(k),roughness:FAB.rough,sheen:FAB.sheen*.6,sheenRoughness:FAB.sheenRough,specularIntensity:.12,envMapIntensity:FAB.env*.8,side:THREE.DoubleSide});
+  INNER_MATS.push(m);return m;
+}
+// Sheen tint follows the shirt: a little lighter than the body, so dark shirts get the soft cotton edge too.
+function tintSheen(){const c=new THREE.Color(st.body).convertSRGBToLinear().lerp(new THREE.Color(1,1,1),FAB.sheenTint);FABRIC_MATS.forEach(m=>m.sheenColor.copy(c));}
+// Live tuning (console): fabric({shade:.9, sheen:.3, ...}) then look. Copy the winning numbers into FAB.
+window.fabric=o=>{Object.assign(FAB,o||{});
+  FABRIC_MATS.forEach(m=>{m.sheen=FAB.sheen;m.sheenRoughness=FAB.sheenRough;m.roughness=FAB.rough;m.envMapIntensity=FAB.env;
+    const u=m.userData.sh&&m.userData.sh.uniforms;if(u)u.shadeAmt.value=FAB.shade;});
+  INNER_MATS.forEach(m=>{m.envMapIntensity=FAB.env*.8;m.sheen=FAB.sheen*.6;});
+  LIGHTS.hemi.intensity=FAB.hemi;LIGHTS.key.intensity=FAB.key;LIGHTS.rim.intensity=FAB.rim;tintSheen();return FAB;};
 function b64buf(d){const s=atob(d.split(",")[1]);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer;}
 function init3D(){
   if(!window.THREE||!THREE.GLTFLoader){$("#loading").textContent="3D didn't load. Check the connection and reload.";return;}
@@ -469,9 +509,11 @@ function init3D(){
   stage.prepend(renderer.domElement);
   scene=new THREE.Scene();
   camera=new THREE.PerspectiveCamera(30,1,1,500);
-  scene.add(new THREE.HemisphereLight(0xffffff,0xd8d4ca,.72));
-  const key=new THREE.DirectionalLight(0xffffff,.6);key.position.set(20,30,40);scene.add(key);
-  const rim=new THREE.DirectionalLight(0xffffff,.32);rim.position.set(-30,10,-30);scene.add(rim);
+  // Soft studio light: a virtual room for the fill (so folds shade like cloth), plus a gentle key and rim.
+  const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromScene(new THREE.RoomEnvironment(),.04).texture;
+  LIGHTS.hemi=new THREE.HemisphereLight(0xffffff,0xd8d4ca,FAB.hemi);scene.add(LIGHTS.hemi);
+  LIGHTS.key=new THREE.DirectionalLight(0xfff8ee,FAB.key);LIGHTS.key.position.set(22,34,40);scene.add(LIGHTS.key);
+  LIGHTS.rim=new THREE.DirectionalLight(0xffffff,FAB.rim);LIGHTS.rim.position.set(-30,12,-30);scene.add(LIGHTS.rim);
   fTex=new THREE.CanvasTexture(frontCv);bTex=new THREE.CanvasTexture(backCv);
   [fTex,bTex].forEach(t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;});
   // Two base tees (unisex, women's). Each is split into front / back / inside faces once,
@@ -498,12 +540,12 @@ function init3D(){
       (outward?(cen.z>z0?fr:bk):inner).push(idx[t],idx[t+1],idx[t+2]);}
     g.setIndex([...fr,...bk,...inner]);g.clearGroups();g.addGroup(0,fr.length,0);g.addGroup(fr.length,bk.length,1);g.addGroup(fr.length+bk.length,inner.length,2);
     const nm=src.material&&src.material.normalMap||null;
-    if(!innerMat)innerMat=new THREE.MeshStandardMaterial({color:st.body,roughness:.95,side:THREE.DoubleSide});
-    const m=new THREE.Mesh(g,[planarMaterial(fTex,nm),planarMaterial(bTex,nm),innerMat]);
+    const inM=innerMaterial(k);if(!innerMat)innerMat=inM;
+    const m=new THREE.Mesh(g,[planarMaterial(fTex,nm,k),planarMaterial(bTex,nm,k),inM]);
     m.position.y=-bb.max.y;m.visible=false;grp.add(m);TEES[k]=m;res();
   }));
   Promise.all(Object.keys(TEE_GLB).map(load)).then(()=>{applySize();$("#loading").remove();
-    if(location.hash==="#render")artReady.then(()=>(document.fonts?document.fonts.ready:0)).then(renderShots);});
+    if(location.hash==="#render")artReady.then(()=>(document.fonts?document.fonts.ready:0)).then(()=>Promise.all(Object.values(SHADE).map(t=>t.userData.ready))).then(renderShots);});
   controls=new THREE.OrbitControls(camera,renderer.domElement);
   controls.enableDamping=true;controls.minDistance=20;controls.maxDistance=170;controls.enablePan=false;
   controls.addEventListener("start",()=>{tween=null;});
