@@ -68,6 +68,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:14p
 .sizebar .seg.sizes button{min-width:36px}
 .sizeval{font-size:12px;color:var(--muted);line-height:1.35}
 .sizeval b{color:var(--ink);font:700 14px/1 var(--h);text-transform:uppercase;margin-right:2px}
+.blanksel{font:600 12px/1 var(--b);border:2px solid var(--ink);background:#fff;padding:6px 8px;border-radius:0;max-width:210px}
+.sizeval .ok{display:inline-block;font-family:var(--m);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#1f7a3a;margin-left:6px}
 .sizeval .ph{display:inline-block;font-family:var(--m);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-left:6px}
 .views{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-top:2px solid var(--ink);background:var(--cream)}
 .views button{font:700 13px/1 var(--h);text-transform:uppercase;border:2px solid var(--ink);background:#fff;padding:8px 10px;cursor:pointer}
@@ -164,11 +166,20 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
   .view .note{margin-top:4px;font-size:11px;line-height:1.3}
   .view .sw{width:28px;height:28px}
   .side{overflow:auto;min-height:0}
+  .view .note.dup{display:none}
+  .blanksel{max-width:170px;padding:5px 6px}
+  .sizebar .seg.sizes button{min-width:30px;padding:6px 6px}
+  .sizebar{padding:6px 12px;gap:6px 8px}
   .foot{margin-top:0;font-size:9px}
 }
 /* short laptop screens: drop the hint lines under the controls (the spec column says the same) */
 @media (min-width:980px) and (min-height:600px) and (max-height:820px){
   .view .note{display:none}
+  #cwLine{display:none}
+  .view .controls{gap:6px}
+  .view .ctl .lab{margin-bottom:2px}
+  .band .sub{display:none}
+  .sizeval b{font-size:12px}
   .sizeval .ph{display:none}
   .view .cap{display:none}
   .view .controls{gap:8px}
@@ -180,7 +191,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
     <img src="__SIG__" alt="PJ O'Rourke signature">
     <div>
       <h1 class="h t">Tee <span>Tech Pack</span> 2.0 <em class="beta">Beta</em></h1>
-      <div class="sub mono">Graphic tees · existing blank · screen print · 3D tee sized to Bella+Canvas 3010 / 6110, placeholder</div>
+      <div class="sub mono">Graphic tees · Shaka Wear SHGD, garment-dyed · screen print</div>
     </div>
     <div class="meta">
       <div><b>Pack</b>v1 2.0</div>
@@ -199,6 +210,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
       <div class="cap" id="viewCap">The side the factory prints. Numbers match the spec list.</div>
       <div class="sizebar">
         <div class="seg" id="fitSeg" aria-label="Fit"></div>
+        <select id="blankSel" class="blanksel" aria-label="Blank"></select>
         <div class="seg sizes" id="sizeSeg" aria-label="Size"></div>
         <div class="sizeval" id="sizeVal"></div>
       </div>
@@ -212,7 +224,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
           <div class="lab mono">Colourway <span class="val" id="cwVal"></span></div>
           <div class="swatches" id="cwSw"></div>
           <div class="cwline" id="cwLine"></div>
-          <div class="note">Sydney colour sheet, draft. Hex are starting points. Pantone TBC.</div>
+          <div class="note">Shirts in SHGD colours. Ink hex are starting points.</div>
         </div>
         <div class="ctl">
           <div class="lab mono">White fills</div>
@@ -227,14 +239,21 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
           <input type="range" id="drop" min="1" max="8" step="0.25" value="3">
           <div class="lab mono" style="margin-top:12px"><label for="width">Print width</label> <span class="val" id="widthVal"></span></div>
           <input type="range" id="width" min="6" max="13" step="0.25" value="9">
-          <div class="note">Try placements here. The pack stays TBC until PJ signs off.</div>
+          <div class="note dup">Try placements here. The pack stays TBC until PJ signs off.</div>
         </div>
         <div class="ctl">
           <div class="lab mono"><label for="sdrop">Signature, down from back collar</label> <span class="val" id="sdropVal"></span></div>
           <input type="range" id="sdrop" min="0.5" max="4" step="0.25" value="1.5">
           <div class="lab mono" style="margin-top:12px"><label for="swidth">Signature width</label> <span class="val" id="swidthVal"></span></div>
           <input type="range" id="swidth" min="2" max="6" step="0.25" value="3.5">
-          <div class="note">Center back neck. Ink is the colourway's accent.</div>
+          <div class="note dup">Center back neck. Ink is the colourway's accent.</div>
+        </div>
+        <div class="ctl">
+          <div class="lab mono">Finish</div>
+          <div class="seg" id="finishSeg">
+            <button type="button" data-v="garment_dyed">Garment-dyed</button>
+            <button type="button" data-v="standard">Standard</button>
+          </div>
         </div>
         <div class="ctl toggles">
           <div>
@@ -276,7 +295,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
     </aside>
   </div>
 
-  <div class="foot mono legal"><span>© 2026 PJ O'Rourke II. All rights reserved. · Tee Tech Pack v1 2.0</span><span>Art, signature, and spec: no reuse without written permission. 3D tees are placeholder stand-ins (BlenderKit, own license), sized to Bella+Canvas 3010 / 6110 until PJ's blank is confirmed.</span></div>
+  <div class="foot mono legal"><span>© 2026 PJ O'Rourke II. All rights reserved. · Tee Tech Pack v1 2.0</span><span>No reuse without written permission. 3D tees: BlenderKit stand-ins sized to the chosen blank.</span></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
@@ -285,9 +304,10 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/environments/RoomEnvironment.js"></script>
 <script>
 const DATA = __DATA__;
-const SIZES = __SIZES__;
+const BL = __BLANKS__;   // src/blanks.py: blank profiles + 3D base models
 const TEE_GLB = {unisex:"__GLB_UNISEX__", womens:"__GLB_WOMENS__"};
 const TEE_SHADE = {unisex:"__SHADE_UNISEX__", womens:"__SHADE_WOMENS__"};   // baked fold shadows + cotton grain (Blender)
+const TEE_WASH = {unisex:"__WASH_UNISEX__", womens:"__WASH_WOMENS__"};      // garment-dye map: R edges, G ridges, B mottle (tools/make_garment_dye_map.py)
 const ART = {s01:{ink:"__INK__", fill:"__FILL__"}, sig:"__SIGINK__"};
 
 const CW = __COLOURWAYS__;   // src/colourways.py: shirt = body, print = front line, accent = back signature
@@ -304,14 +324,18 @@ const HOT = [
   {n:"4", key:"Signature", side:-1},{n:"5", key:"Blank", side:1},{n:"6", key:"Size run", side:1},
 ];
 
-const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", sig:"#121212", cw:"classic", fill:"print", drop:3, width:9, meas:true, pins:true, view:"front", fit:"unisex", size:"M"};
+const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", sig:"#121212", cw:"classic", fill:"print", drop:3, width:9, meas:true, pins:true, view:"front", blank:BL.defaults.unisex, size:"M", finish:null};
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const cur = ()=>DATA.styles.find(s=>s.key===st.style);
 const printH = ()=>st.width*4/3;
 // current size: base model stretched to this size's chest (x, z) and length (y)
-const fitSet = ()=>SIZES.sets[st.fit];
-function sizeNow(){const f=fitSet(),i=SIZES.run.indexOf(st.size);const kx=f.chest[i]/f.base.chest,ky=f.length[i]/f.base.length;
+// current blank (spec + sizes) joined with the 3D base model it stretches
+const blank = ()=>BL.blanks[st.blank];
+const fitSet = ()=>{const b=blank();return {...b,base:BL.models[b.model].base};};
+const curModel = ()=>blank().model;
+function sizeNow(){const f=fitSet();let i=f.run.indexOf(st.size);if(i<0){st.size=f.run.includes("M")?"M":f.run[0];i=f.run.indexOf(st.size);}
+  const kx=f.chest[i]/f.base.chest,ky=f.length[i]/f.base.length;
   return {chest:f.chest[i],length:f.length[i],kx,ky,W:f.base.W*kx,H:f.base.H*ky,fd:f.base.front_drop*ky,bd:f.base.back_drop*ky};}
 function frac8(v){const w=Math.floor(v),e=Math.round((v-w)*8);if(!e)return w+"";const g=e%4===0?4:e%2===0?2:1;return w+" "+(e/g)+"/"+(8/g);}
 const tbc = '<span class="tbc">TBC</span>';
@@ -323,8 +347,16 @@ VIEWS.forEach(v=>btn($("#views"),v.t,{id:"view-"+v.k,"aria-pressed":v.k===st.vie
 function setCw(k){const c=CW.find(x=>x.key===k);st.cw=k;st.body=c.shirt[1];st.ink=c.print[1];st.sig=c.accent[1];st.fill=c.fill;}
 CW.forEach(c=>btn($("#cwSw"),`<i style="background:${c.print[1]}"></i><b style="background:${c.accent[1]}"></b>`,{class:"sw cw",id:"cw-"+c.key,title:c.name,"aria-label":"Colourway "+c.name,"aria-pressed":c.key===st.cw,style:"background:"+c.shirt[1]},()=>{setCw(c.key);render();}));
 $("#fillSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.fill=b.dataset.v;render();}));
-Object.entries(SIZES.sets).forEach(([k,f])=>btn($("#fitSeg"),esc(f.label),{id:"fit-"+k,"aria-pressed":k===st.fit},()=>{st.fit=k;applySize();render();}));
-SIZES.run.forEach(z=>btn($("#sizeSeg"),z,{id:"size-"+z,"aria-pressed":z===st.size},()=>{st.size=z;applySize();render();}));
+[["unisex","Unisex"],["womens","Women's"]].forEach(([k,l])=>btn($("#fitSeg"),l,{id:"fit-"+k,"aria-pressed":blank().fit===k},()=>setBlank(BL.defaults[k])));
+$("#blankSel").addEventListener("change",e=>setBlank(e.target.value));
+function setBlank(k){st.blank=k;st.finish=blank().finish;buildBlankUI();applySize();render();}
+function buildBlankUI(){
+  const b=blank();
+  $("#blankSel").innerHTML=Object.entries(BL.blanks).filter(([,x])=>x.fit===b.fit).map(([k,x])=>`<option value="${k}"${k===st.blank?" selected":""}>${esc(x.label)}${x.status==="placeholder"?" (placeholder)":""}</option>`).join("");
+  $("#sizeSeg").innerHTML="";b.run.forEach(z=>btn($("#sizeSeg"),z,{id:"size-"+z,"aria-pressed":z===st.size},()=>{st.size=z;applySize();render();}));
+}
+st.finish=blank().finish;buildBlankUI();
+$("#finishSeg").querySelectorAll("button").forEach(x=>x.addEventListener("click",()=>{st.finish=x.dataset.v;render();}));
 $("#measSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.meas=b.dataset.v==="1";render();}));
 $("#pinSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.pins=b.dataset.v==="1";render();}));
 $("#drop").addEventListener("input",e=>{st.drop=+e.target.value;render();});
@@ -351,12 +383,13 @@ function renderPanel(){
   document.querySelectorAll("#styles button").forEach(b=>b.setAttribute("aria-pressed",b.id==="style-"+s.key));
   document.querySelectorAll("#cwSw button").forEach(b=>b.setAttribute("aria-pressed",b.id==="cw-"+st.cw));
   {const c=CW.find(x=>x.key===st.cw);$("#cwVal").textContent=c.num+" "+c.name;
-   $("#cwLine").innerHTML=[["Shirt",c.shirt],["Line",c.print],["Signature",c.accent]].map(([k,[n,h]])=>`<span><i style="background:${h}"></i>${k}: ${esc(n)} <em>${h}</em></span>`).join("");}
+   $("#cwLine").innerHTML=[["Shirt",[c.shirt[0]+(c.pms?" · "+c.pms:""),c.shirt[1]]],["Line",c.print],["Signature",c.accent]].map(([k,[n,h]])=>`<span><i style="background:${h}"></i>${k}: ${esc(n)} <em>${h}</em></span>`).join("");}
   $("#fillPrint").setAttribute("aria-pressed",st.fill==="print");$("#fillOpen").setAttribute("aria-pressed",st.fill==="open");
   $("#measOn").setAttribute("aria-pressed",st.meas);$("#measOff").setAttribute("aria-pressed",!st.meas);
-  document.querySelectorAll("#fitSeg button").forEach(b=>b.setAttribute("aria-pressed",b.id==="fit-"+st.fit));
+  document.querySelectorAll("#fitSeg button").forEach(b=>b.setAttribute("aria-pressed",b.id==="fit-"+blank().fit));
+  document.querySelectorAll("#finishSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.finish));
   document.querySelectorAll("#sizeSeg button").forEach(b=>b.setAttribute("aria-pressed",b.id==="size-"+st.size));
-  {const z=sizeNow(),f=fitSet();$("#sizeVal").innerHTML=`<b>${esc(f.label)} ${st.size}</b> · chest ${frac8(z.chest)} in · length ${frac8(z.length)} in <span class="ph">Placeholder: ${esc(f.blank)}</span>`;}
+  {const z=sizeNow(),f=fitSet();$("#sizeVal").innerHTML=`<b>${esc(f.style)} ${st.size}</b> · chest ${frac8(z.chest)} in · length ${frac8(z.length)} in`+(f.status==="placeholder"?` <span class="ph">Placeholder blank</span>`:` <span class="ok">PJ's blank</span>`);}
   $("#pinOn").setAttribute("aria-pressed",st.pins);$("#pinOff").setAttribute("aria-pressed",!st.pins);stage.classList.toggle("nopins",!st.pins);
   $("#dropVal").textContent=frac(st.drop);$("#widthVal").textContent=frac(st.width)+" x "+frac(Math.round(printH()*4)/4);
   $("#sdropVal").textContent=frac(st.sdrop);$("#swidthVal").textContent=frac(st.swidth);
@@ -431,6 +464,7 @@ function paint(){
   bc.restore();
   if(fTex){fTex.needsUpdate=true;bTex.needsUpdate=true;}
   INNER_MATS.forEach(m=>m.color.set(st.body).convertSRGBToLinear());
+  syncGD();
   if(FABRIC_MATS.length)tintSheen();
   if(teeMesh)updateHot();
 }
@@ -461,28 +495,36 @@ function updateHot(){
 // No tone mapping, so the colourway hex codes still read true.
 const FAB={shade:.85, sheen:.3, sheenRough:.8, sheenTint:.3, rough:.92, env:.3, hemi:.34, key:.6, rim:.28};
 const SHADE={}; const FABRIC_MATS=[], INNER_MATS=[], LIGHTS={};
-function shadeTex(k){
-  if(SHADE[k])return SHADE[k];
+function shadeTex(k){return imgTex(SHADE,TEE_SHADE,k);}
+function washTex(k){return imgTex(WASH,TEE_WASH,k);}
+const WASH={};
+// Garment dye (Finish = Garment-dyed): the shirt colour drifts toward a faded, chalkier version of itself at the
+// seams/hems/collar (R), on fold ridges (G) and in cloudy patches (B). The print is applied after dyeing, so it stays crisp.
+const GD={edge:.45, ridge:.28, mottle:.22, fade:.34};   // tuned against the S&S Washed Denim photo, 2026-09-28
+function imgTex(cache,src,k){
+  if(cache[k])return cache[k];
   const im=new Image();const t=new THREE.Texture(im);
   // render mode (PDF) must wait for this, or it photographs the tee before the shading has loaded
   t.userData.ready=new Promise(res=>{im.onload=()=>{t.needsUpdate=true;res();};im.onerror=res;});
-  im.src=TEE_SHADE[k];
+  im.src=src[k];
   t.flipY=false;            // glTF UV convention
   t.encoding=THREE.LinearEncoding;t.anisotropy=8;
-  return SHADE[k]=t;
+  return cache[k]=t;
 }
 function planarMaterial(tex,normalMap,k){
   const m=new THREE.MeshPhysicalMaterial({map:tex,normalMap:normalMap||null,roughness:FAB.rough,metalness:0,
     sheen:FAB.sheen,sheenRoughness:FAB.sheenRough,sheenColor:new THREE.Color(1,1,1),specularIntensity:.15,envMapIntensity:FAB.env,side:THREE.DoubleSide});
   if(normalMap)m.normalScale=new THREE.Vector2(.9,.9);
-  m.userData.shadeTex=shadeTex(k);
+  m.userData.shadeTex=shadeTex(k);m.userData.washTex=washTex(k);
   m.onBeforeCompile=sh=>{
     m.userData.sh=sh;
     sh.uniforms.shadeMap={value:m.userData.shadeTex};sh.uniforms.shadeAmt={value:FAB.shade};
+    sh.uniforms.washMap={value:m.userData.washTex};sh.uniforms.gdOn={value:st.finish==="garment_dyed"?1:0};
+    sh.uniforms.gdK={value:new THREE.Vector4(GD.edge,GD.ridge,GD.mottle,GD.fade)};sh.uniforms.bodyLin={value:new THREE.Color(st.body).convertSRGBToLinear()};
     sh.vertexShader=sh.vertexShader.replace("#include <common>","#include <common>\nattribute vec2 planarUv;\nvarying vec2 vPlanar;")
       .replace("#include <uv_vertex>","#include <uv_vertex>\nvPlanar=planarUv;");
-    sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nvarying vec2 vPlanar;\nuniform sampler2D shadeMap;uniform float shadeAmt;")
-      .replace("#include <map_fragment>","vec4 sampledDiffuseColor=gl_FrontFacing?texture2D(map,vPlanar):texture2D(map,vec2(.002,.002));\ndiffuseColor*=sampledDiffuseColor;\nfloat fab=texture2D(shadeMap,vUv).r;\ndiffuseColor.rgb*=mix(1.0,min(1.0,fab*1.06),shadeAmt);");
+    sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nvarying vec2 vPlanar;\nuniform sampler2D shadeMap;uniform float shadeAmt;uniform sampler2D washMap;uniform float gdOn;uniform vec4 gdK;uniform vec3 bodyLin;")
+      .replace("#include <map_fragment>","vec4 sampledDiffuseColor=gl_FrontFacing?texture2D(map,vPlanar):texture2D(map,vec2(.002,.002));\nvec4 pr=sampledDiffuseColor;\n/* garment dye: fade the shirt colour only (where the canvas shows plain body), print stays crisp */\nif(gdOn>.5){vec3 w=texture2D(washMap,vUv).rgb;float f=clamp(w.r*gdK.x+w.g*gdK.y+(w.b-.5)*2.*gdK.z,-.35,1.);\n vec3 faded=mix(bodyLin,vec3(dot(bodyLin,vec3(.3,.59,.11)))*.35+.62,gdK.w);\n vec3 dyed=f>0.?mix(bodyLin,faded,f):bodyLin*(1.+f*.5);\n float isBody=1.-smoothstep(.015,.06,distance(pr.rgb,bodyLin));\n pr.rgb=mix(pr.rgb,dyed,isBody);}\ndiffuseColor*=pr;\nfloat fab=texture2D(shadeMap,vUv).r;\ndiffuseColor.rgb*=mix(1.0,min(1.0,fab*1.06),shadeAmt);");
   };
   FABRIC_MATS.push(m);
   return m;
@@ -493,6 +535,9 @@ function innerMaterial(k){
   INNER_MATS.push(m);return m;
 }
 // Sheen tint follows the shirt: a little lighter than the body, so dark shirts get the soft cotton edge too.
+function syncGD(){FABRIC_MATS.forEach(m=>{const u=m.userData.sh&&m.userData.sh.uniforms;if(!u)return;u.gdOn.value=st.finish==="garment_dyed"?1:0;u.bodyLin.value.set(st.body).convertSRGBToLinear();u.gdK.value.set(GD.edge,GD.ridge,GD.mottle,GD.fade);});
+  INNER_MATS.forEach(m=>{m.color.set(st.body).convertSRGBToLinear();});}
+window.gd=o=>{Object.assign(GD,o||{});syncGD();return GD;};   // live tuning, console
 function tintSheen(){const c=new THREE.Color(st.body).convertSRGBToLinear().lerp(new THREE.Color(1,1,1),FAB.sheenTint);FABRIC_MATS.forEach(m=>m.sheenColor.copy(c));}
 // Live tuning (console): fabric({shade:.9, sheen:.3, ...}) then look. Copy the winning numbers into FAB.
 window.fabric=o=>{Object.assign(FAB,o||{});
@@ -523,7 +568,7 @@ function init3D(){
     let src=null;gl.scene.traverse(o=>{if(o.isMesh&&!src)src=o;});
     const g=src.geometry, P=g.attributes.position, n=P.count;
     g.computeBoundingBox();const bb=g.boundingBox, gW=bb.max.x-bb.min.x, gH=bb.max.y-bb.min.y;
-    const f=SIZES.sets[k];f.base.W=gW;f.base.H=gH;   // exact model box, so the print lands in true inches
+    const f=BL.models[k];f.base.W=gW;f.base.H=gH;   // exact model box, so the print lands in true inches
     const pl=new Float32Array(n*2);
     for(let i=0;i<n;i++){pl[i*2]=(P.getX(i)-bb.min.x)/gW;pl[i*2+1]=1+(P.getY(i)-bb.max.y)/gH;}
     g.setAttribute("planarUv",new THREE.BufferAttribute(pl,2));
@@ -556,9 +601,9 @@ function init3D(){
 }
 function applySize(){
   setBox();
-  if(TEES[st.fit]){
-    Object.entries(TEES).forEach(([k,m])=>m.visible=k===st.fit);
-    teeMesh=TEES[st.fit];const z=sizeNow();
+  if(TEES[curModel()]){
+    Object.entries(TEES).forEach(([k,m])=>m.visible=k===curModel());
+    teeMesh=TEES[curModel()];const z=sizeNow();
     window.teeGrp.scale.set(z.kx,z.ky,z.kx);window.teeGrp.position.y=B.H/2;window.teeGrp.updateMatrixWorld(true);
     if(camera&&!tween){camera.position.setLength(camDist(camera.position.clone().normalize()));}
   }
@@ -606,7 +651,8 @@ async function renderShots(){
   const SH=__SHOTS__, out={}, W=900, H=1200;
   renderer.setPixelRatio(1);renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();
   for(const sh of SH){
-    Object.assign(st,{meas:false,pins:false,fit:"unisex",size:"M",view:"front"},sh.st||{});
+    Object.assign(st,{meas:false,pins:false,blank:BL.defaults.unisex,size:"M",view:"front"},sh.st||{});
+    st.finish=(sh.st&&sh.st.finish)||blank().finish;
     if(sh.cw)setCw(sh.cw);if(sh.st&&"fill" in sh.st)st.fill=sh.st.fill;
     applySize();renderPanel();paint();
     const v=VIEWS.find(x=>x.k===st.view);const d=new THREE.Vector3(...v.dir).normalize();

@@ -13,25 +13,28 @@ b64 = lambda p, m="image/png": f"data:{m};base64," + base64.b64encode((A / p).re
 t = (ROOT / "src/viewer_template.html").read_text()
 t = t.replace("__DATA__", json.dumps({"styles": STYLES, "rules": PRINTER_RULES}))
 # Tee models: exported from blender/Shirts.blend. Origin = top of collar, centred, 1 unit = 1 in.
-# The viewer stretches each one to the chest + length of the chosen size (src/sizes.py, PLACEHOLDER numbers).
-from sizes import SIZE_SETS, SIZE_RUN
-t = t.replace("__SIZES__", json.dumps({"run": SIZE_RUN, "sets": {k: {kk: vv for kk, vv in v.items() if kk != "glb"} for k, v in SIZE_SETS.items()}}))
+# The viewer stretches each one to the chest + length of the chosen blank and size (src/blanks.py).
+from blanks import BLANKS, MODELS, DEFAULT_BLANK
+t = t.replace("__BLANKS__", json.dumps({"blanks": BLANKS, "defaults": DEFAULT_BLANK,
+    "models": {k: {"base": dict(v["base"])} for k, v in MODELS.items()}}))
 from colourways import COLOURWAYS
 # Views the PDF needs, photographed by the viewer's render mode (#render). Same code as the page, so they match.
 SHOTS = [
     {"id": "s01_front", "cw": "classic", "st": {"style": "s01", "meas": True, "view": "front"}},
     {"id": "s01_back", "cw": "classic", "st": {"style": "s01", "meas": True, "view": "back"}},
     {"id": "s01_q", "cw": "classic", "st": {"style": "s01", "view": "q"}},
-    {"id": "s01_w_front", "cw": "classic", "st": {"style": "s01", "fit": "womens", "meas": True, "view": "front"}},
-    {"id": "s01_w_back", "cw": "classic", "st": {"style": "s01", "fit": "womens", "meas": True, "view": "back"}},
+    {"id": "s01_w_front", "cw": "classic", "st": {"style": "s01", "blank": DEFAULT_BLANK["womens"], "meas": True, "view": "front"}},
+    {"id": "s01_w_back", "cw": "classic", "st": {"style": "s01", "blank": DEFAULT_BLANK["womens"], "meas": True, "view": "back"}},
 ] + [{"id": f"cw_{c['key']}_{v}", "cw": c["key"], "st": {"style": "s01", "view": v}} for c in COLOURWAYS for v in ("front", "back")] + [
     {"id": "s02_front", "cw": "classic", "st": {"style": "s02", "meas": True, "view": "front"}},
     {"id": "s02_back", "cw": "classic", "st": {"style": "s02", "meas": True, "view": "back"}},
 ]
 t = t.replace("__SHOTS__", json.dumps(SHOTS))
 t = t.replace("__COLOURWAYS__", json.dumps(COLOURWAYS))
-t = t.replace("__GLB_UNISEX__", b64(SIZE_SETS["unisex"]["glb"], "model/gltf-binary"))
-t = t.replace("__GLB_WOMENS__", b64(SIZE_SETS["womens"]["glb"], "model/gltf-binary"))
+t = t.replace("__GLB_UNISEX__", b64(MODELS["unisex"]["glb"], "model/gltf-binary"))
+t = t.replace("__GLB_WOMENS__", b64(MODELS["womens"]["glb"], "model/gltf-binary"))
+# Garment-dye maps (tools/make_garment_dye_map.py): R frosted edges, G fold ridges, B mottling
+t = t.replace("__WASH_UNISEX__", b64("tee_gd_wash_unisex.jpg", "image/jpeg")).replace("__WASH_WOMENS__", b64("tee_gd_wash_womens.jpg", "image/jpeg"))
 # Baked cloth shading per tee (fold shadows + cotton grain), from blender/Shirts.blend. See README "Fabric look".
 t = t.replace("__SHADE_UNISEX__", b64("tee_fabric_shade_unisex.jpg", "image/jpeg")).replace("__SHADE_WOMENS__", b64("tee_fabric_shade_womens.jpg", "image/jpeg"))
 t = t.replace("__INK__", b64("art01_ink.png")).replace("__FILL__", b64("art01_fill.png"))
@@ -115,7 +118,7 @@ if RENDERS:
     from pdf import make_pdf_html
     from colourways import SOURCE as CW_SOURCE
     from data import SIZE_POMS
-    ph = make_pdf_html(STYLES, PRINTER_RULES, SIZE_POMS, SIZE_SETS, SIZE_RUN, COLOURWAYS, CW_SOURCE, RENDERS, SITE,
+    ph = make_pdf_html(STYLES, PRINTER_RULES, SIZE_POMS, BLANKS, DEFAULT_BLANK, COLOURWAYS, CW_SOURCE, RENDERS, SITE,
                        datetime.date.today().strftime("%b %-d, %Y"))
     ph = ph.replace("SIG_CREAM", b64("PJ_Signature_cream_transparent.png")).replace("ART_INK", b64("art01_ink.png"))
     with tempfile.TemporaryDirectory() as d:

@@ -44,6 +44,18 @@ PJ's note on v1: the tees looked like plastic. The web models are too low-detail
 - Tuning: `FAB` at the top of the fabric section in `src/viewer_template.html`, or `fabric({...})` in the browser console.
 - **v1** (before the fabric look) is tagged in git: `git checkout v1` to see it.
 
+## Blanks (v3)
+
+`src/blanks.py` holds one profile per blank: spec, fit, finish, sizes, colours with Pantones, source. The site's **Unisex / Women's** switch opens each fit's default blank; the **Blank** picker lists every blank for that fit; sizes follow the blank. Adding a blank = adding an entry.
+
+- **Shaka Wear SHGD** (PJ's blank, confirmed 2026-09-28): Unisex Max Heavyweight Garment-Dyed Tee, 7.5 oz, 100% USA cotton, XS–5XL, 18 colours with Pantones. Chest, length and sleeve from the S&S size chart; the maker doesn't say how sleeve is measured (likely centre back), TBC.
+- **Bella+Canvas 3010 / 6110**: placeholders. Women's stays on 6110 until PJ picks a women's blank.
+- 3D base models (`MODELS`) are separate from blanks: a blank says which model it stretches.
+
+## Garment-dyed finish (v3)
+
+**Finish: Garment-dyed / Standard** on the site; each blank sets its default. Garment dye fades the shirt colour (never the print) at seams, hem, cuffs and collar, on fold ridges, and in cloudy patches. The map is `assets/tee_gd_wash_<model>.jpg` (R edges, G ridges, B mottle), made by `python3 tools/make_garment_dye_map.py` from the Blender fold bakes in `blender/fabric_bake/`. Strength: `GD` in `src/viewer_template.html`, tuned against the S&S Washed Denim photo; live tuning with `gd({...})` in the console.
+
 ## Colourways
 
 `src/colourways.py`, from the PJ Sydney colour sheet (draft): Classic, Harbour, Jacaranda, Bush, Sandstone. Shirt = body, print = front line (fills open), accent = PJ's signature at the back neck. Hex are starting points; Pantone TBC.

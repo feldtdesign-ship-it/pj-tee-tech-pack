@@ -19,7 +19,7 @@ STYLES = [
         ],
         "spec": [
             ("Style number", None),
-            ("Blank", "Existing blank. Brand and style number TBC"),
+            ("Blank", "Shaka Wear SHGD, Unisex Max Heavyweight Garment-Dyed Tee. 7.5 oz, 100% USA cotton, 16 singles, garment-dyed. Women's blank TBC"),
             ("Body colors", None),
             ("Size run", None),
             ("Print method", "Screen print"),

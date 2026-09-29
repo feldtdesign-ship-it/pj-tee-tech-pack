@@ -107,7 +107,8 @@ th.n{text-align:center}
 .chip em{font-style:normal;font-family:var(--m);font-size:10px;color:var(--muted);margin-left:auto}
 .cw .ln{font-size:10.5px;font-style:italic;color:var(--muted);padding:6px 10px 8px}
 /* measurements */
-.pom td.n{width:62px}
+.pom td.n{width:50px;font-size:11px}
+.okt{display:inline-block;font-family:var(--m);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:#1f7a3a;border:1px solid #1f7a3a;padding:1px 4px;margin-right:4px}
 .check td:first-child{width:22px}
 .box{display:inline-block;width:13px;height:13px;border:1.5px solid var(--ink)}
 .sign{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;padding:34px 16px 16px}
@@ -154,25 +155,39 @@ def foot(left, n):
     return f'<div class="foot mono"><span>PJ O\'Rourke II / Tee tech pack v1.2 / {e(left)}</span><span>{n:02d}</span></div>'
 
 
-def pom_table(fit, run, poms):
+def pom_table(b, poms):
+    """Measurement table for one blank profile (src/blanks.py)."""
+    run = b["run"]
     heads = "".join(f'<th class="n">{z}</th>' for z in run)
     rows = []
     for p in poms:
         if p.startswith("Body length"):
-            cells = "".join(f'<td class="n">{frac8(v)}</td>' for v in fit["length"])
+            cells = "".join(f'<td class="n">{frac8(v)}</td>' for v in b["length"])
         elif p.startswith("Chest"):
-            cells = "".join(f'<td class="n">{frac8(v)}</td>' for v in fit["chest"])
+            cells = "".join(f'<td class="n">{frac8(v)}</td>' for v in b["chest"])
         else:
             cells = f'<td class="n" colspan="{len(run)}">{TBC}</td>'
         rows.append(f'<tr><td class="k">{e(p)}</td>{cells}<td class="n">{TBC}</td></tr>')
+    if b.get("sleeve"):
+        cells = "".join(f'<td class="n">{frac8(v)}</td>' for v in b["sleeve"])
+        rows.insert(2, f'<tr><td class="k">Sleeve length (as published)</td>{cells}<td class="n">{TBC}</td></tr>')
+    if b["status"] == "confirmed":
+        note = (f'<span class="okt">PJ\'s blank</span> {e(b["maker"])} {e(b["style"])}, {e(b["name"])}. {e(b["fabric"])} {e(b["fit_note"])} '
+                f'Published size chart ({e(b["source"])}): chest, length and sleeve; the maker does not say how sleeve is measured (likely centre back), TBC. '
+                f'{e(b["note"])} Other rows TBC from the maker\'s tech spec or a measured sample.')
+    else:
+        note = (f'{PH} {e(b["label"])}, {e(b["name"])}: published measurement report ({e(b["source"])}), chest and length only. '
+                f'Stand-in until PJ confirms a blank for this fit.')
     return f"""<table class="pom"><tr><th>Measurement (in, laid flat)</th>{heads}<th class="n">Tol +/-</th></tr>{''.join(rows)}</table>
-<div class="note">{PH} {e(fit['label'])}: {e(fit['blank'])}, published measurement report ({e(fit['source'])}). It lists chest and length only. PJ's blank is TBC: swap these when it is confirmed.</div>"""
+<div class="note">{note}</div>"""
 
 
-def make_pdf_html(styles, rules, poms, size_sets, run, colourways, cw_source, R, site, date):
+def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, R, site, date):
     global DATE
     DATE = date
-    blank_line = "Placeholder: B+C 3010 / 6110"
+    ub = blanks[defaults["unisex"]]
+    blank_line = f'{e(ub["maker"])} {e(ub["style"])} · women\'s TBC' if ub["status"] == "confirmed" else "Placeholder: B+C 3010 / 6110"
+    tbl_blanks = [blanks[defaults[f]] for f in ("unisex", "womens")]
     pages = []
     n = 1
     # 1 cover
@@ -240,7 +255,7 @@ def make_pdf_html(styles, rules, poms, size_sets, run, colourways, cw_source, R,
         if art:
             cards = []
             for c in colourways:
-                chips = "".join(f'<div class="chip"><i style="background:{h}"></i>{k}: {e(nm)}<em>{h}</em></div>' for k, (nm, h) in [("Shirt", c["shirt"]), ("Line", c["print"]), ("Signature", c["accent"])])
+                chips = "".join(f'<div class="chip"><i style="background:{h}"></i>{k}: {e(nm)}<em>{h}</em></div>' for k, (nm, h) in [("Shirt", [c["shirt"][0] + (" · " + c["pms"] if c.get("pms") else ""), c["shirt"][1]]), ("Line", c["print"]), ("Signature", c["accent"])])
                 cards.append(f"""<section class="cw"><div class="bar"><div class="h">{e(c['num'])} {e(c['name'])}</div><div class="mono">{e(c['tag'])}</div></div>
   <div class="pair grid"><div><img src="{R.get(f"cw_{c['key']}_front", '')}" alt=""></div><div><img src="{R.get(f"cw_{c['key']}_back", '')}" alt=""></div></div>
   <div class="chips">{chips}</div><div class="ln">{e(c['line'])}</div></section>""")
@@ -250,7 +265,7 @@ def make_pdf_html(styles, rules, poms, size_sets, run, colourways, cw_source, R,
   {foot("Style " + s["num"] + " " + s["name"], n)}</div>""")
             n += 1
         # sheet 4: measurements, finishing, sign off
-        tables = "".join(f'<div class="h" style="font-size:20px;margin:10px 0 4px">{e(f["label"])} · {e(f["blank"])}</div>{pom_table(f, run, poms)}' for f in size_sets.values())
+        tables = "".join(f'<div class="h" style="font-size:20px;margin:10px 0 4px">{"Unisex" if b["fit"] == "unisex" else "Women\'s"} · {e(b["label"])}</div>{pom_table(b, poms)}' for b in tbl_blanks)
         place = "".join(f'<tr><td class="k">{e(k)}</td><td class="n">{e(v)}</td><td>{e(nt)}</td></tr>' for k, v, nt in [
             ("Print width", "9 in", "Viewer starting point (artboard at 100%). Same on every size until screen tiers are set."),
             ("Print down from collar", "3 in", "Starting point, center front from the collar seam."),
