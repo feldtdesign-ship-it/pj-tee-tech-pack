@@ -61,6 +61,15 @@
       {label:`${bk} ${hi} front`,blank:bk,size:hi,cw:'sandstone',view:'front',meas:true},
     ];
   };
+  // tag heroes (3.1): every tag spot close up on a plain tee, plus front/back overviews. o = {blank, size, cw, dist}
+  QC.tags=(o)=>{o=o||{};const W=420,H=520;renderer.setPixelRatio(1);renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();
+    if(o.blank&&o.blank!==st.blank)setBlank(o.blank);if(o.size)st.size=o.size;setCw(o.cw||'classic');
+    Object.assign(st,{noArt:true,pocket:true,meas:false,pins:false});TR.trims.forEach(t=>st.trims[t.key]=true);applySize();paint();
+    const out=[];for(const v of ['front','back']){const d=new THREE.Vector3(...VIEWS.find(x=>x.k===v).dir).normalize();camera.position.copy(d.multiplyScalar(camDist(d)*.8));controls.target.set(0,0,0);camera.lookAt(0,0,0);renderer.render(scene,camera);out.push([v,renderer.domElement.toDataURL()]);}
+    for(const t of TR.trims){const c=trimCam(t.key,o.dist);if(!c){out.push([t.key+' NOT PLACED','']);continue;}camera.position.copy(c.pos);controls.target.copy(c.target);camera.lookAt(c.target);renderer.render(scene,camera);out.push([t.key+' '+t.name,renderer.domElement.toDataURL()]);}
+    document.documentElement.style.overflow='auto';
+    document.body.innerHTML='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:#999;font:11px monospace">'+out.map(([l,u])=>`<div style="background:#fff"><img src="${u}" style="width:100%;display:block;max-height:${o.maxH||240}px;object-fit:contain"><div>${l}</div></div>`).join('')+'</div>';
+    return out.length+' shots';};
   QC.back=()=>location.reload();
   window.QC=QC;
 })();
