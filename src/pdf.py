@@ -224,8 +224,8 @@ def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, 
         of = 4 if art else 3
         # sheet 1: turnaround
         if art:
-            panels = (panel("Front", "3D render · unisex M", "The side the factory prints. Starting placement shown, numbers TBC.", shot(R, f"{pre}_front", "Facing you"))
-                      + panel("Back", "3D render · unisex M", "PJ's real signature, center back neck.", shot(R, f"{pre}_back", "Facing away"))
+            panels = (panel("Front", "3D render · SHGD M", "The side the factory prints. Starting placement shown, numbers TBC.", shot(R, f"{pre}_front", "Facing you"))
+                      + panel("Back", "3D render · SHGD M", "PJ's real signature, center back neck.", shot(R, f"{pre}_back", "Facing away"))
                       + panel("3/4 vanity", "3D render", "For the humans. Not a spec view.", shot(R, f"{pre}_q", "3/4"))
                       + panel("Women's", "3D render · women's M", "Same print on the women's tee. 9 in wide on every size.", shot(R, f"{pre}_w_front", "Facing you")))
         else:

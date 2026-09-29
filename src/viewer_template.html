@@ -305,9 +305,10 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
 <script>
 const DATA = __DATA__;
 const BL = __BLANKS__;   // src/blanks.py: blank profiles + 3D base models
-const TEE_GLB = {unisex:"__GLB_UNISEX__", womens:"__GLB_WOMENS__"};
-const TEE_SHADE = {unisex:"__SHADE_UNISEX__", womens:"__SHADE_WOMENS__"};   // baked fold shadows + cotton grain (Blender)
-const TEE_WASH = {unisex:"__WASH_UNISEX__", womens:"__WASH_WOMENS__"};      // garment-dye map: R edges, G ridges, B mottle (tools/make_garment_dye_map.py)
+// One entry per 3D base model (src/blanks.py MODELS): the tee, its baked fold shading, its garment-dye map.
+const TEE_GLB = __TEE_GLB__;
+const TEE_SHADE = __TEE_SHADE__;   // baked fold shadows + cotton grain (Blender, tools/make_fabric_shade.py)
+const TEE_WASH = __TEE_WASH__;     // garment-dye map: R edges, G ridges, B mottle (tools/make_garment_dye_map.py)
 const ART = {s01:{ink:"__INK__", fill:"__FILL__"}, sig:"__SIGINK__"};
 
 const CW = __COLOURWAYS__;   // src/colourways.py: shirt = body, print = front line, accent = back signature
@@ -349,7 +350,7 @@ CW.forEach(c=>btn($("#cwSw"),`<i style="background:${c.print[1]}"></i><b style="
 $("#fillSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.fill=b.dataset.v;render();}));
 [["unisex","Unisex"],["womens","Women's"]].forEach(([k,l])=>btn($("#fitSeg"),l,{id:"fit-"+k,"aria-pressed":blank().fit===k},()=>setBlank(BL.defaults[k])));
 $("#blankSel").addEventListener("change",e=>setBlank(e.target.value));
-function setBlank(k){st.blank=k;st.finish=blank().finish;buildBlankUI();applySize();render();}
+function setBlank(k){st.blank=k;st.finish=blank().finish;buildBlankUI();if(window.ensureModel)ensureModel(curModel());applySize();render();}
 function buildBlankUI(){
   const b=blank();
   $("#blankSel").innerHTML=Object.entries(BL.blanks).filter(([,x])=>x.fit===b.fit).map(([k,x])=>`<option value="${k}"${k===st.blank?" selected":""}>${esc(x.label)}${x.status==="placeholder"?" (placeholder)":""}</option>`).join("");
@@ -472,7 +473,7 @@ function shade(hex,a){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b
 
 // ---------- 3D ----------
 const stage=$("#stage");
-let teeMesh=null, innerMat=null; const TEES={};
+let teeMesh=null, innerMat=null; const TEES={}, LOADING={};
 const ray=()=>new THREE.Raycaster();
 function surf(x,y,from){ // point on the tee surface, seen from the front (+1) or back (-1)
   if(!teeMesh)return [x,y,0];
@@ -564,7 +565,8 @@ function init3D(){
   // Two base tees (unisex, women's). Each is split into front / back / inside faces once,
   // with the print canvases projected flat onto it. A size is just a stretch of the mesh.
   const grp=new THREE.Group();scene.add(grp);window.teeGrp=grp;
-  const load=k=>new Promise(res=>new THREE.GLTFLoader().parse(b64buf(TEE_GLB[k]),"",gl=>{
+  // Models are separate files (dist/m/), fetched only when a blank needs them, so the page stays light.
+  const load=k=>LOADING[k]||(LOADING[k]=fetch(TEE_GLB[k]).then(r=>r.arrayBuffer()).then(buf=>new Promise(res=>new THREE.GLTFLoader().parse(buf,"",gl=>{
     let src=null;gl.scene.traverse(o=>{if(o.isMesh&&!src)src=o;});
     const g=src.geometry, P=g.attributes.position, n=P.count;
     g.computeBoundingBox();const bb=g.boundingBox, gW=bb.max.x-bb.min.x, gH=bb.max.y-bb.min.y;
@@ -588,9 +590,12 @@ function init3D(){
     const inM=innerMaterial(k);if(!innerMat)innerMat=inM;
     const m=new THREE.Mesh(g,[planarMaterial(fTex,nm,k),planarMaterial(bTex,nm,k),inM]);
     m.position.y=-bb.max.y;m.visible=false;grp.add(m);TEES[k]=m;res();
-  }));
-  Promise.all(Object.keys(TEE_GLB).map(load)).then(()=>{applySize();$("#loading").remove();
-    if(location.hash==="#render")artReady.then(()=>(document.fonts?document.fonts.ready:0)).then(()=>Promise.all(Object.values(SHADE).map(t=>t.userData.ready))).then(renderShots);});
+  }))));
+  window.ensureModel=k=>load(k).then(()=>{if(k===curModel())applySize();});
+  load(curModel()).then(()=>{applySize();$("#loading").remove();
+    if(location.hash==="#render")Promise.all(Object.keys(TEE_GLB).map(load)).then(()=>artReady).then(()=>(document.fonts?document.fonts.ready:0)).then(()=>Promise.all(Object.values(SHADE).map(t=>t.userData.ready))).then(renderShots);
+    else setTimeout(()=>Object.keys(TEE_GLB).forEach(load),1500);   // warm the others in the background
+  });
   controls=new THREE.OrbitControls(camera,renderer.domElement);
   controls.enableDamping=true;controls.minDistance=20;controls.maxDistance=170;controls.enablePan=false;
   controls.addEventListener("start",()=>{tween=null;});
@@ -662,6 +667,7 @@ async function renderShots(){
   window.RENDERS=out;document.title="RENDERS_DONE";
   fetch("/__renders",{method:"POST",body:JSON.stringify(out)}).catch(()=>{});
 }
+if(location.hash==="#qc"){const q=document.createElement("script");q.src="qc.js";document.head.appendChild(q);}   // QC tools, see tools/qc.js
 renderPanel();paint();
 const artReady=Promise.all([loadImg(ART.s01.ink),loadImg(ART.s01.fill),loadImg(ART.sig)]);artReady.then(([i,f,g])=>{imgs.s01={ink:i,fill:f};imgs.sig=g;paint();});
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>paint());

@@ -19,17 +19,21 @@ Fields
 MODELS = {
     # 3D base tees exported from blender/Shirts.blend. Measured in Blender: chest = half the distance
     # around the body just below the armhole; length = top of collar to hem; drops from the top of collar.
-    "unisex": {"glb": "tee_viewer_model_v1.glb", "shade": "tee_fabric_shade_unisex.jpg",
+    "unisex": {"glb": "tee_viewer_model_v1.glb", "shade": "tee_fabric_shade_unisex.jpg", "wash": "tee_gd_wash_unisex.jpg",
                "base": {"chest": 20.81, "length": 29.0, "front_drop": 1.69, "back_drop": 0.0, "W": 23.5, "H": 29.0}},
-    "womens": {"glb": "tee_viewer_model_womens_v1.glb", "shade": "tee_fabric_shade_womens.jpg",
+    "womens": {"glb": "tee_viewer_model_womens_v1.glb", "shade": "tee_fabric_shade_womens.jpg", "wash": "tee_gd_wash_womens.jpg",
                "base": {"chest": 15.7, "length": 22.98, "front_drop": 2.35, "back_drop": 0.06, "W": 16.73, "H": 22.98}},
+    # Boxy / oversized (SHGD): the unisex tee reshaped by tools/blender_boxy_tee.py (wider, flatter body, dropped
+    # shoulders, longer fuller sleeves). Measured by tools/blender_export_viewer_tee.py, 2026-09-28.
+    "boxy": {"glb": "tee_viewer_model_boxy_v1.glb", "shade": "tee_fabric_shade_boxy.jpg", "wash": "tee_gd_wash_boxy.jpg",
+             "base": {"chest": 12.97, "length": 17.91, "front_drop": 1.04, "back_drop": 0.0, "W": 16.72, "H": 17.91}},
 }
 
 BLANKS = {
     "shaka_shgd": {
         "label": "Shaka Wear SHGD", "maker": "Shaka Wear", "style": "SHGD",
         "name": "Unisex Max Heavyweight Garment-Dyed Tee",
-        "status": "confirmed", "fit": "unisex", "model": "unisex", "finish": "garment_dyed",
+        "status": "confirmed", "fit": "unisex", "model": "boxy", "finish": "garment_dyed",
         "source": "https://www.ssactivewear.com/p/shaka_wear/shgd",
         "fabric": "7.5 oz./yd², 100% USA cotton, 16 singles. 3.5% Lycra ribbing.",
         "fit_note": "Slightly oversized fit.",

@@ -1,4 +1,4 @@
-"""Builds dist/index.html, dist/og-card.png, and the root index.html from src/ and assets/. Run: python3 build.py"""
+"""Builds dist/index.html (+ dist/m/ models), the PDF, dist/og-card.png, and the root index.html from src/ and assets/. Run: python3 build.py"""
 import json, base64, sys, pathlib, shutil, subprocess, tempfile, html, os
 ROOT = pathlib.Path(__file__).parent
 # Link preview (unfurl card) for iMessage, Slack, etc. The image URL must be absolute.
@@ -31,12 +31,15 @@ SHOTS = [
 ]
 t = t.replace("__SHOTS__", json.dumps(SHOTS))
 t = t.replace("__COLOURWAYS__", json.dumps(COLOURWAYS))
-t = t.replace("__GLB_UNISEX__", b64(MODELS["unisex"]["glb"], "model/gltf-binary"))
-t = t.replace("__GLB_WOMENS__", b64(MODELS["womens"]["glb"], "model/gltf-binary"))
-# Garment-dye maps (tools/make_garment_dye_map.py): R frosted edges, G fold ridges, B mottling
-t = t.replace("__WASH_UNISEX__", b64("tee_gd_wash_unisex.jpg", "image/jpeg")).replace("__WASH_WOMENS__", b64("tee_gd_wash_womens.jpg", "image/jpeg"))
-# Baked cloth shading per tee (fold shadows + cotton grain), from blender/Shirts.blend. See README "Fabric look".
-t = t.replace("__SHADE_UNISEX__", b64("tee_fabric_shade_unisex.jpg", "image/jpeg")).replace("__SHADE_WOMENS__", b64("tee_fabric_shade_womens.jpg", "image/jpeg"))
+# Every 3D base model in src/blanks.py MODELS: tee (.glb), fold shading, garment-dye map. Embedded so the page is one file.
+# Copied to dist/m/ and loaded on demand by the page (only the models a blank needs), so the page stays light.
+(ROOT / "dist/m").mkdir(parents=True, exist_ok=True)
+shutil.copy2(ROOT / "tools/qc.js", ROOT / "dist/qc.js")   # QC helpers, loaded only with #qc
+for v in MODELS.values():
+    for f in (v["glb"], v["shade"], v["wash"]): shutil.copy2(A / f, ROOT / "dist/m" / f)
+t = t.replace("__TEE_GLB__", json.dumps({k: "m/" + v["glb"] for k, v in MODELS.items()}))
+t = t.replace("__TEE_SHADE__", json.dumps({k: "m/" + v["shade"] for k, v in MODELS.items()}))
+t = t.replace("__TEE_WASH__", json.dumps({k: "m/" + v["wash"] for k, v in MODELS.items()}))
 t = t.replace("__INK__", b64("art01_ink.png")).replace("__FILL__", b64("art01_fill.png"))
 t = t.replace("__SIGINK__", b64("PJ_Signature_ink_transparent.png")).replace("__SIG__", b64("PJ_Signature_cream_transparent.png"))
 (ROOT / "dist").mkdir(exist_ok=True)

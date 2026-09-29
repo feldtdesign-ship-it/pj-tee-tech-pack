@@ -11,7 +11,7 @@ Input: the full-size fold-shadow (AO) bakes from blender/Shirts_fabric_bake.blen
 Output: assets/tee_gd_wash_<model>.jpg (RGB as above, 1024 px). The page mixes the shirt colour toward a
         faded version of itself by R, G and B, only when Finish = Garment-dyed.
 
-Run: python3 tools/make_garment_dye_map.py   (a few seconds; re-run after a new bake or a new model)
+Run: python3 tools/make_garment_dye_map.py [model ...]   (default: all; a few seconds each)
 """
 import pathlib
 import numpy as np
@@ -53,6 +53,8 @@ def wash(model, seed):
     return p
 
 if __name__ == "__main__":
-    for i, m in enumerate(("unisex", "womens")):
+    import sys
+    models = sys.argv[1:] or ["unisex", "womens", "boxy"]
+    for i, m in enumerate(models):
         p = wash(m, 7 + i)
         print(p.name, p.stat().st_size // 1024, "KB")

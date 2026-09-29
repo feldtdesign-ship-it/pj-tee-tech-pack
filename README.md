@@ -52,6 +52,18 @@ PJ's note on v1: the tees looked like plastic. The web models are too low-detail
 - **Bella+Canvas 3010 / 6110**: placeholders. Women's stays on 6110 until PJ picks a women's blank.
 - 3D base models (`MODELS`) are separate from blanks: a blank says which model it stretches.
 
+## Boxy SHGD model (v4)
+
+The SHGD uses its own 3D base, `assets/tee_viewer_model_boxy_v1.glb`: the unisex tee reshaped for the oversized fit (wider, flatter, straight-sided body; dropped, broader shoulders; longer sleeves, fuller toward the cuff).
+- Shape: `tools/blender_boxy_tee.py`, run inside `blender/Shirts_fabric_bake.blend` (scene **SHGD Boxy**; a copy of the script is in the .blend). Change a number, re-run; the source tee is never touched.
+- Measure + export: `tools/blender_export_viewer_tee.py` (`measure(obj)`, `export(obj, path)`). Numbers go in `src/blanks.py` MODELS.
+- Fold shading: bake copy `FabricBake_boxy` in scene **Fabric Bake** → `blender/fabric_bake/ao_boxy_2048.png` → `python3 tools/make_fabric_shade.py boxy` and `python3 tools/make_garment_dye_map.py boxy`.
+- Models now load as separate files from `dist/m/` (page ~1 MB instead of ~12 MB).
+
+## QC
+
+Open the page with `#qc` (e.g. `http://localhost:8770/index.html#qc`) to load `tools/qc.js`, then in the console: `await QC.numbers()` (every blank × size: length, pins, layout) and `QC.sheet(QC.standard())` (contact sheet: views, inside neck, hem, smallest/largest size).
+
 ## Garment-dyed finish (v3)
 
 **Finish: Garment-dyed / Standard** on the site; each blank sets its default. Garment dye fades the shirt colour (never the print) at seams, hem, cuffs and collar, on fold ridges, and in cloudy patches. The map is `assets/tee_gd_wash_<model>.jpg` (R edges, G ridges, B mottle), made by `python3 tools/make_garment_dye_map.py` from the Blender fold bakes in `blender/fabric_bake/`. Strength: `GD` in `src/viewer_template.html`, tuned against the S&S Washed Denim photo; live tuning with `gd({...})` in the console.
