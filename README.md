@@ -1,6 +1,6 @@
 # PJ Tee Tech Pack
 
-Tech pack 2.0 for PJ O'Rourke II graphic tees. A single web page with a 3D tee you can spin, print and signature placement, colors, and the spec.
+Tech pack **3.0** for PJ O'Rourke II graphic tees. A single web page with a 3D tee you can spin: print placement (center front, or left chest + back), every shirt colour of the blank, any ink, the signature, and the spec. Plus the printable PDF.
 
 ## Rule
 
@@ -20,7 +20,7 @@ Every value is read from a file or marked TBC. Nothing is guessed.
 python3 build.py
 ```
 
-Then open `dist/index.html` in a browser.
+Then open `dist/index.html` in a browser. For quick checks while editing, `python3 build.py --page` builds only the page (no card, renders or PDF); always run the full build before pushing.
 
 The build also makes the link preview (unfurl card): `dist/og-card.png` from `src/og_card_template.html`, drawn with headless Google Chrome, plus the preview tags on `dist/index.html` and the short-link `index.html`. Title and description live at the top of `build.py`.
 
@@ -85,10 +85,20 @@ Open the page with `#qc` (e.g. `http://localhost:8770/index.html#qc`) to load `t
 - The two base tees come from `blender/Shirts.blend` in the main PJ folder (kept off GitHub): `assets/tee_viewer_model_v1.glb` (unisex) and `assets/tee_viewer_model_womens_v1.glb` (women's fitted, exported 2026-09-24). Export rules: 1 unit = 1 in, centred, top of collar at 0, front facing forward, about 40k points, normal map only.
 - When PJ's real blank is confirmed, swap the numbers in `src/sizes.py` and rebuild.
 
+## 3.0: placements, shirt colours, ink (2026-09-29)
+
+- **Placement** (Placement tab): **Center front** (one print) or **Left chest + back** (small print over the wearer's left chest, big print center back under the signature). Every design can use either; `place` in `src/artwork.py` says where each opens. Chest is measured down from the HPS (high point of the shoulder, the top of the 3D tee) to the top of the print, and over from center front to the middle of the print. Back print is measured down from the back collar.
+- **Shirt** (Colour tab): every colour of the chosen blank from `src/blanks.py`, with the maker's Pantone. SHGD has 18 (checked against S&S, 2026-09-29).
+- **Ink**: black, white, every colourway ink, plus a picker for any colour. **Signature ink**: the colourway accent, or the same as the print (one colour on the whole tee).
+- A colourway still sets shirt, ink and signature together; after a pick it reads "edited".
+- **One-colour designs** (`one_colour: True`): knocked out, so no white fills; the shirt shows through.
+- Pins: `HOT` in the page lists which spec lines a pin can point to (`keys`), so "Chest print" and "Print size" share pin 1, "Back print" is pin 7.
+- **Versions:** git tags `v1`–`v5` are the build steps of 2.0; `v3.0` is this release.
+
 ## Add a style (a new design)
 
-1. `python3 tools/split_art.py "../Artwork/<design>.ai" art03` — ink + fill layers into `assets/`, crops to the ArtBox, prints the file facts. No installs (uses macOS `sips`).
-2. Add it to `src/artwork.py` (layers, starting print width, PDF caption).
+1. `python3 tools/split_art.py "../Artwork/<design>.ai" art04` — ink + fill layers into `assets/`, crops to the ArtBox, prints the file facts. No installs (uses macOS `sips`). If the sheet holds several pieces (a back and a chest version), add `--box x,y,w,h` in inches from the artboard's top-left to cut out one; the page scales it for both placements.
+2. Add it to `src/artwork.py` (layers, starting print width, PDF caption; for chest + back: `place`, `chest_w`, `back_w`; `one_colour` if knocked out).
 3. Fill its style in `src/data.py` (name, line, art facts from step 1, spec, inks, open decisions; TBC where unknown). data.py edits need Michael's OK.
 4. `python3 build.py`. The page gets a style button; the PDF gets its four sheets (turnaround, print and placement, colourways, measurements) with renders.
 5. QC: open the page with `#qc`, run `QC.sheet(QC.standard())` with the new style selected, and check the print fits the smallest sizes.
@@ -101,3 +111,4 @@ Open the page with `#qc` (e.g. `http://localhost:8770/index.html#qc`) to load `t
 
 - 01 Citibike Gumbit: front print, signature at the back neck.
 - 02 New York Layer Cake: front print (starting 12 in wide), signature at the back neck. From `Artwork/PATCH NEW YORK LAYER CAKE COLOR PJ OROURKE BW SCREEN PRINT.ai`. Added 2026-09-28.
+- 03 New York Fuckery: one colour, knocked out. Left chest 3 3/8 in + back 10 1/8 in, signature at the back neck. From `Artwork/fuckery one color screen copy.pdf` (11 x 17 in sheet, art at print size; also a 2 3/4 in chest version). `art03` = the back circle, cut with `split_art.py --box 0.3967,0.64,10.1633,10.1667 --width 2400`. Added 2026-09-29.

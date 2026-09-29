@@ -1,6 +1,9 @@
 """Turn a design's Illustrator file into the two layers the viewer and PDF use, and read its facts.
 
-    python3 tools/split_art.py "path/to/design.ai" art02 [--width 2000]
+    python3 tools/split_art.py "path/to/design.ai" art02 [--width 2000] [--box x,y,w,h]
+
+--box crops to one piece of a sheet that holds several (inches from the artboard's top-left), e.g. the
+big back circle on a sheet that also has the small chest versions. Without it the crop is the ArtBox.
 
 Writes assets/<name>_ink.png (the line, as alpha: black = full ink, greys = partial) and assets/<name>_fill.png
 (the white fills, as alpha), cropped to the file's ArtBox (the artwork itself, not the whole artboard), and prints
@@ -40,10 +43,13 @@ def facts(path, b, bx, alpha, rgb):
         "grey_tone_share": round(float(greys), 3),
     }
 
-def main(path, name, width=2000):
+def main(path, name, width=2000, box=None):
     b = open(path, "rb").read()
     assert b[:5] == b"%PDF-", "not a PDF-compatible .ai (save with 'Create PDF Compatible File' on)"
     bx = boxes(b); mb = bx["MediaBox"]; ab = bx.get("ArtBox", mb)
+    if box:   # inches from the artboard's top-left -> PDF points (origin bottom-left)
+        x, y, w, h = [v * 72 for v in box]
+        ab = [mb[0] + x, mb[3] - y - h, mb[0] + x + w, mb[3] - y]
     full_w = int(round(width * (mb[2] - mb[0]) / (ab[2] - ab[0])))
     with tempfile.TemporaryDirectory() as d:
         pdf = os.path.join(d, "a.pdf"); shutil.copy(path, pdf)
@@ -62,4 +68,5 @@ def main(path, name, width=2000):
 
 if __name__ == "__main__":
     w = int(sys.argv[sys.argv.index("--width") + 1]) if "--width" in sys.argv else 2000
-    main(sys.argv[1], sys.argv[2], w)
+    bx = [float(v) for v in sys.argv[sys.argv.index("--box") + 1].split(",")] if "--box" in sys.argv else None
+    main(sys.argv[1], sys.argv[2], w, bx)

@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PJ Tee Tech Pack 2.0</title>
+<title>PJ Tee Tech Pack 3.0</title>
 __OG__
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -87,6 +87,16 @@ body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:14p
 .cwline span{display:flex;align-items:center;gap:6px}
 .cwline i{width:10px;height:10px;border:1px solid var(--ink);display:inline-block}
 .cwline em{font-style:normal;font-family:var(--m);font-size:10px;color:var(--muted)}
+.swatches.sm{gap:6px}
+.sw.sm{width:22px;height:22px}
+.view .sw.sm{width:22px;height:22px}
+.sw.pick{background:conic-gradient(#e33,#ec3,#3c5,#3ae,#a3e,#e33);overflow:hidden}
+.sw.pick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+.ctl .sub2{display:flex;justify-content:space-between;margin:10px 0 5px;color:var(--muted)}
+.ctab{width:100%}.ctab button{flex:1;font:700 13px/1 var(--h);text-transform:uppercase;letter-spacing:.02em;padding:8px 6px}
+.views .tog{order:9;margin-left:auto;display:flex;gap:8px;align-items:center}
+.views .tog .seg button{padding:6px 8px;font-size:11px}
+.views .tog .mono{color:var(--muted);font-size:9px}
 .sw[aria-pressed="true"]::after{content:"";position:absolute;inset:-6px;border:2px solid var(--blue)}
 .seg{display:flex;border:2px solid var(--ink);width:max-content;max-width:100%}
 .seg button{font:600 12px/1 var(--b);border:0;background:#fff;padding:9px 10px;cursor:pointer}
@@ -190,12 +200,12 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
   <header class="band">
     <img src="__SIG__" alt="PJ O'Rourke signature">
     <div>
-      <h1 class="h t">Tee <span>Tech Pack</span> 2.0 <em class="beta">Beta</em></h1>
+      <h1 class="h t">Tee <span>Tech Pack</span> 3.0 <em class="beta">Beta</em></h1>
       <div class="sub mono">Graphic tees · Shaka Wear SHGD, garment-dyed · screen print</div>
     </div>
     <div class="meta">
-      <div><b>Pack</b>v1 2.0</div>
-      <div><b>Date</b>Sept 24, 2026</div>
+      <div><b>Pack</b>v3.0</div>
+      <div><b>Date</b>Sept 29, 2026</div>
       <div><b>Artist</b>PJ O'Rourke II</div>
       <div><b>Approved by</b><span class="tbc">TBC</span></div>
     </div>
@@ -218,57 +228,89 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
         <div class="loading mono" id="loading">Loading the tee</div>
         <div class="facing mono" id="facing">Facing you</div>
       </div>
-      <div class="views" id="views"></div>
+      <div class="views" id="views"><div class="tog">
+          <span class="mono">Measure</span><div class="seg" id="measSeg">
+            <button type="button" id="measOn" data-v="1" aria-pressed="true">Show</button>
+            <button type="button" id="measOff" data-v="0" aria-pressed="false">Hide</button></div>
+          <span class="mono">Pins</span><div class="seg" id="pinSeg">
+            <button type="button" id="pinOn" data-v="1" aria-pressed="true">Show</button>
+            <button type="button" id="pinOff" data-v="0" aria-pressed="false">Hide</button></div>
+        </div></div>
       <div class="controls">
-        <div class="ctl">
+        <div class="seg ctab" id="ctlTab" role="tablist" aria-label="Controls">
+          <button type="button" data-v="colour">Colour</button>
+          <button type="button" data-v="place">Placement</button>
+        </div>
+        <div class="ctl" data-tab="colour">
           <div class="lab mono">Colourway <span class="val" id="cwVal"></span></div>
           <div class="swatches" id="cwSw"></div>
           <div class="cwline" id="cwLine"></div>
-          <div class="note">Shirts in SHGD colours. Ink hex are starting points.</div>
+          <div class="note">Sets shirt, ink and signature together. Pick any of them below.</div>
         </div>
-        <div class="ctl">
+        <div class="ctl" data-tab="colour">
+          <div class="lab mono">Shirt <span class="val" id="shirtVal"></span></div>
+          <div class="swatches sm" id="shirtSw"></div>
+          <div class="note" id="shirtNote"></div>
+        </div>
+        <div class="ctl" data-tab="colour">
+          <div class="lab mono"><label for="inkPick">Ink</label> <span class="val" id="inkVal"></span></div>
+          <div class="swatches sm" id="inkSw"></div>
+          <div class="note">The print ink. Last swatch: pick any colour.</div>
+        </div>
+        <div class="ctl" data-tab="place">
+          <div class="lab mono">Placement</div>
+          <div class="seg" id="placeSeg">
+            <button type="button" data-v="front">Center front</button>
+            <button type="button" data-v="chest_back">Left chest + back</button>
+          </div>
+        </div>
+        <div class="ctl" data-tab="colour">
           <div class="lab mono">White fills</div>
           <div class="seg" id="fillSeg">
             <button type="button" id="fillPrint" data-v="print" aria-pressed="true">Print white</button>
             <button type="button" id="fillOpen" data-v="open" aria-pressed="false">Leave open</button>
           </div>
-          <div class="note">Open decision. See "White fills" in the spec column.</div>
+          <div class="note" id="fillNote">Open decision. See "White fills" in the spec column.</div>
         </div>
-        <div class="ctl">
+        <div class="ctl" id="grpFront" data-tab="place">
           <div class="lab mono"><label for="drop">Down from collar</label> <span class="val" id="dropVal"></span></div>
           <input type="range" id="drop" min="1" max="8" step="0.25" value="3">
-          <div class="lab mono" style="margin-top:12px"><label for="width">Print width</label> <span class="val" id="widthVal"></span></div>
-          <input type="range" id="width" min="6" max="13" step="0.25" value="9">
+          <div class="sub2 mono"><label for="width">Print width</label> <span class="val" id="widthVal"></span></div>
+          <input type="range" id="width" min="6" max="13" step="0.125" value="9">
           <div class="note dup">Try placements here. The pack stays TBC until PJ signs off.</div>
         </div>
-        <div class="ctl">
+        <div class="ctl" id="grpChest" data-tab="place" hidden>
+          <div class="lab mono"><label for="cwidth">Chest print width</label> <span class="val" id="cwidthVal"></span></div>
+          <input type="range" id="cwidth" min="2" max="5" step="0.125" value="3.375">
+          <div class="sub2 mono"><label for="cdrop">Down from HPS</label> <span class="val" id="cdropVal"></span></div>
+          <input type="range" id="cdrop" min="1.5" max="7" step="0.25" value="3.5">
+          <div class="sub2 mono"><label for="cover">Over from center front</label> <span class="val" id="coverVal"></span></div>
+          <input type="range" id="cover" min="2" max="6" step="0.25" value="4">
+          <div class="note dup">Wearer's left chest. HPS = high point of the shoulder. "Over" is to the middle of the print.</div>
+        </div>
+        <div class="ctl" id="grpBack" data-tab="place" hidden>
+          <div class="lab mono"><label for="bwidth">Back print width</label> <span class="val" id="bwidthVal"></span></div>
+          <input type="range" id="bwidth" min="6" max="14" step="0.125" value="10.125">
+          <div class="sub2 mono"><label for="bdrop">Back, down from collar</label> <span class="val" id="bdropVal"></span></div>
+          <input type="range" id="bdrop" min="2.5" max="9" step="0.25" value="4">
+        </div>
+        <div class="ctl" data-tab="place">
           <div class="lab mono"><label for="sdrop">Signature, down from back collar</label> <span class="val" id="sdropVal"></span></div>
           <input type="range" id="sdrop" min="0.5" max="4" step="0.25" value="1.5">
-          <div class="lab mono" style="margin-top:12px"><label for="swidth">Signature width</label> <span class="val" id="swidthVal"></span></div>
+          <div class="sub2 mono"><label for="swidth">Signature width</label> <span class="val" id="swidthVal"></span></div>
           <input type="range" id="swidth" min="2" max="6" step="0.25" value="3.5">
-          <div class="note dup">Center back neck. Ink is the colourway's accent.</div>
+          <div class="sub2 mono">Signature ink</div>
+          <div class="seg" id="sigSeg">
+            <button type="button" data-v="accent">Accent</button>
+            <button type="button" data-v="ink">Same as print</button>
+          </div>
+          <div class="note dup">Center back neck.</div>
         </div>
-        <div class="ctl">
+        <div class="ctl" data-tab="colour">
           <div class="lab mono">Finish</div>
           <div class="seg" id="finishSeg">
             <button type="button" data-v="garment_dyed">Garment-dyed</button>
             <button type="button" data-v="standard">Standard</button>
-          </div>
-        </div>
-        <div class="ctl toggles">
-          <div>
-            <div class="lab mono">Measurements</div>
-            <div class="seg" id="measSeg">
-              <button type="button" id="measOn" data-v="1" aria-pressed="true">Show</button>
-              <button type="button" id="measOff" data-v="0" aria-pressed="false">Hide</button>
-            </div>
-          </div>
-          <div>
-            <div class="lab mono">Pins</div>
-            <div class="seg" id="pinSeg">
-              <button type="button" id="pinOn" data-v="1" aria-pressed="true">Show</button>
-              <button type="button" id="pinOff" data-v="0" aria-pressed="false">Hide</button>
-            </div>
           </div>
         </div>
       </div>
@@ -295,7 +337,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
     </aside>
   </div>
 
-  <div class="foot mono legal"><span>© 2026 PJ O'Rourke II. All rights reserved. · Tee Tech Pack v1 2.0</span><span>No reuse without written permission. 3D tees: BlenderKit stand-ins sized to the chosen blank.</span></div>
+  <div class="foot mono legal"><span>© 2026 PJ O'Rourke II. All rights reserved. · Tee Tech Pack v3.0</span><span>No reuse without written permission. 3D tees: BlenderKit stand-ins sized to the chosen blank.</span></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
@@ -321,18 +363,25 @@ const VIEWS = [
   {k:"q", t:"3/4 vanity", cap:"For the humans. Not a spec view.", face:"3/4", dir:[.72,.12,.68]},
 ];
 // hotspots: 3D anchor + spec row it lights up
+// keys: spec lines the pin can point to (first one the style has wins), role: what it marks on the tee
 const HOT = [
-  {n:"1", key:"Print size", side:1},{n:"2", key:"Down from collar", side:1},{n:"3", key:"Neck label", side:1, inside:true},
-  {n:"4", key:"Signature", side:-1},{n:"5", key:"Blank", side:1},{n:"6", key:"Size run", side:1},
+  {n:"1", keys:["Print size","Chest print"], role:"print", side:1},{n:"2", keys:["Down from collar","Down from HPS"], role:"drop", side:1},
+  {n:"3", keys:["Neck label"], role:"neck", side:1, inside:true},{n:"4", keys:["Signature"], role:"sig", side:-1},
+  {n:"5", keys:["Blank"], role:"blank", side:1},{n:"6", keys:["Size run"], role:"run", side:1},
+  {n:"7", keys:["Back print"], role:"back", side:-1},
 ];
 
-const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", sig:"#121212", cw:"classic", fill:"print", drop:3, width:9, meas:true, pins:true, view:"front", blank:BL.defaults.unisex, size:"M", finish:null};
+const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", sig:"#121212", cw:"classic", fill:"print", drop:3, width:9, meas:true, pins:true, view:"front", blank:BL.defaults.unisex, size:"M", finish:null,
+  // 3.0: placement ("front" or "chest_back"), chest print (width, down from HPS, over from center front), back print (width, down from collar)
+  place:"front", cwidth:3.5, cdrop:3.5, cover:4, bwidth:10, bdrop:4, sigMode:"accent", tab:"colour", shirtName:"Cream", shirtPms:"7506 C", inkName:"Black"};
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const cur = ()=>DATA.styles.find(s=>s.key===st.style);
 // print height follows the art's own proportions (Citibike 9 x 12, Layer Cake 62 x 70)
 const artAspect = ()=>{const i=imgs[st.style];return i&&i.ink?i.ink.height/i.ink.width:4/3;};
 const printH = ()=>st.width*artAspect();
+const oneColour = ()=>!!(ART[st.style]&&ART[st.style].one_colour);
+const sigInk = ()=>st.sigMode==="ink"?st.ink:st.sig;
 // current size: base model stretched to this size's chest (x, z) and length (y)
 // current blank (spec + sizes) joined with the 3D base model it stretches
 const blank = ()=>BL.blanks[st.blank];
@@ -346,35 +395,55 @@ const tbc = '<span class="tbc">TBC</span>';
 
 // ---------- UI ----------
 function btn(parent,html,attrs,on){const b=document.createElement("button");b.type="button";b.innerHTML=html;for(const k in attrs)b.setAttribute(k,attrs[k]);b.addEventListener("click",on);parent.appendChild(b);return b;}
-function setStyle(k){st.style=k;if(ART[k]){st.width=ART[k].start_w;$("#width").value=st.width;}render();}
+// Where a design opens: its placement and starting sizes (src/artwork.py). Any design can switch placement after.
+function styleDefaults(k){st.style=k;const a=ART[k];if(!a)return;
+  st.width=a.start_w;st.place=a.place||"front";st.cwidth=a.chest_w||3.5;st.bwidth=a.back_w||Math.min(12,a.start_w);
+  [["width","width"],["cwidth","cwidth"],["bwidth","bwidth"]].forEach(([id,k2])=>$("#"+id).value=st[k2]);}
+function setStyle(k){styleDefaults(k);render();}
 DATA.styles.forEach(s=>btn($("#styles"),`<span class="n">${s.num}</span>${esc(s.name)}`,{id:"style-"+s.key,"aria-pressed":s.key===st.style},()=>setStyle(s.key)));
 VIEWS.forEach(v=>btn($("#views"),v.t,{id:"view-"+v.k,"aria-pressed":v.k===st.view},()=>goView(v.k)));
-function setCw(k){const c=CW.find(x=>x.key===k);st.cw=k;st.body=c.shirt[1];st.ink=c.print[1];st.sig=c.accent[1];st.fill=c.fill;}
+function setCw(k){const c=CW.find(x=>x.key===k);st.cw=k;st.body=c.shirt[1];st.ink=c.print[1];st.sig=c.accent[1];st.fill=c.fill;
+  st.shirtName=c.shirt[0];st.shirtPms=c.pms||"";st.inkName=c.print[0];}
+// Ink presets: black, white, and every ink the colourways use. Plus a picker for anything else.
+const INKS=[["Black","#121212"],["White","#FAFAF7"]];
+CW.forEach(c=>[c.print,c.accent].forEach(([n,h])=>{if(!INKS.some(x=>x[1].toLowerCase()===h.toLowerCase()))INKS.push([n,h]);}));
+function setInk(n,h){st.ink=h;st.inkName=n;render();}
+INKS.forEach(([n,h])=>btn($("#inkSw"),"",{class:"sw sm",title:n+" "+h,"aria-label":"Ink "+n,style:"background:"+h,"data-hex":h},()=>setInk(n,h)));
+{const l=document.createElement("label");l.className="sw sm pick";l.title="Pick any ink colour";l.innerHTML='<input type="color" id="inkPick" value="#121212" aria-label="Pick any ink colour">';$("#inkSw").appendChild(l);
+ l.querySelector("input").addEventListener("input",e=>setInk("Custom",e.target.value.toUpperCase()));}
+// Shirt colours: every colour of the chosen blank (src/blanks.py), with the maker's Pantone.
+function buildShirtUI(){const cs=blank().colours||[];$("#shirtSw").innerHTML="";
+  cs.forEach(([n,pms,h])=>btn($("#shirtSw"),"",{class:"sw sm",title:`${n} · PMS ${pms}`,"aria-label":"Shirt "+n,style:"background:"+h,"data-hex":h},()=>{st.body=h;st.shirtName=n;st.shirtPms=pms;render();}));
+  $("#shirtNote").textContent=cs.length?`All ${cs.length} ${blank().label} colours. Hex are from the maker's swatches (approximate).`:`No colour list for ${blank().label} yet (placeholder blank).`;}
 CW.forEach(c=>btn($("#cwSw"),`<i style="background:${c.print[1]}"></i><b style="background:${c.accent[1]}"></b>`,{class:"sw cw",id:"cw-"+c.key,title:c.name,"aria-label":"Colourway "+c.name,"aria-pressed":c.key===st.cw,style:"background:"+c.shirt[1]},()=>{setCw(c.key);render();}));
 $("#fillSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.fill=b.dataset.v;render();}));
 [["unisex","Unisex"],["womens","Women's"]].forEach(([k,l])=>btn($("#fitSeg"),l,{id:"fit-"+k,"aria-pressed":blank().fit===k},()=>setBlank(BL.defaults[k])));
 $("#blankSel").addEventListener("change",e=>setBlank(e.target.value));
-function setBlank(k){st.blank=k;st.finish=blank().finish;buildBlankUI();if(window.ensureModel)ensureModel(curModel());applySize();render();}
+function setBlank(k){st.blank=k;st.finish=blank().finish;buildBlankUI();buildShirtUI();if(window.ensureModel)ensureModel(curModel());applySize();render();}
 function buildBlankUI(){
   const b=blank();
   $("#blankSel").innerHTML=Object.entries(BL.blanks).filter(([,x])=>x.fit===b.fit).map(([k,x])=>`<option value="${k}"${k===st.blank?" selected":""}>${esc(x.label)}${x.status==="placeholder"?" (placeholder)":""}</option>`).join("");
   $("#sizeSeg").innerHTML="";b.run.forEach(z=>btn($("#sizeSeg"),z,{id:"size-"+z,"aria-pressed":z===st.size},()=>{st.size=z;applySize();render();}));
 }
-st.finish=blank().finish;buildBlankUI();
+setCw(st.cw);st.finish=blank().finish;buildBlankUI();buildShirtUI();
 $("#finishSeg").querySelectorAll("button").forEach(x=>x.addEventListener("click",()=>{st.finish=x.dataset.v;render();}));
 $("#measSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.meas=b.dataset.v==="1";render();}));
 $("#pinSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.pins=b.dataset.v==="1";render();}));
+$("#ctlTab").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.tab=b.dataset.v;renderPanel();}));
+$("#placeSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.place=b.dataset.v;render();}));
+$("#sigSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{st.sigMode=b.dataset.v;render();}));
+["cwidth","cdrop","cover","bwidth","bdrop"].forEach(id=>$("#"+id).addEventListener("input",e=>{st[id]=+e.target.value;render();}));
 $("#drop").addEventListener("input",e=>{st.drop=+e.target.value;render();});
 $("#width").addEventListener("input",e=>{st.width=+e.target.value;render();});
 $("#sdrop").addEventListener("input",e=>{st.sdrop=+e.target.value;render();});
 $("#swidth").addEventListener("input",e=>{st.swidth=+e.target.value;render();});
 DATA.rules.forEach(([a,b])=>{const d=document.createElement("div");d.className="pill";d.innerHTML=`<b>${esc(a)}</b><span>${esc(b)}</span>`;$("#pills").appendChild(d);});
 
-function frac(v){const w=Math.floor(v),f=v-w;const m={0:"",0.25:" 1/4",0.5:" 1/2",0.75:" 3/4"}[f];return (w||!m?w:"")+(m??"")+" in";}
+function frac(v){const t=frac8(v);return (t.startsWith("0 ")?t.slice(2):t)+" in";}
 
 // Pin numbers come from the spec list order, so a pin always shows the same number as its line in the side menu.
-function pinNo(key){const i=cur().spec.findIndex(([k])=>k===key);return i<0?"":String(i+1).padStart(2,"0");}
-function numberPins(){HOT.forEach(h=>{if(!h.el)return;const n=pinNo(h.key);h.el.textContent=n;h.el.hidden=!n;});}
+function pinNo(h){const sp=cur().spec;for(const key of h.keys){const i=sp.findIndex(([k])=>k===key);if(i>=0){h.key=key;return String(i+1).padStart(2,"0");}}h.key=h.keys[0];return "";}
+function numberPins(){HOT.forEach(h=>{const n=pinNo(h);if(!h.el)return;h.el.textContent=n;h.el.hidden=!n;});}
 function renderPanel(){
   const s=cur();
   $("#sNum").textContent="Style "+s.num;
@@ -387,18 +456,35 @@ function renderPanel(){
   $("#facts").innerHTML=s.art_facts.map(([k,v])=>`<div><div class="mono">${esc(k)}</div>${v?esc(v):tbc}</div>`).join("");
   document.querySelectorAll("#styles button").forEach(b=>b.setAttribute("aria-pressed",b.id==="style-"+s.key));
   document.querySelectorAll("#cwSw button").forEach(b=>b.setAttribute("aria-pressed",b.id==="cw-"+st.cw));
-  {const c=CW.find(x=>x.key===st.cw);$("#cwVal").textContent=c.num+" "+c.name;
-   $("#cwLine").innerHTML=[["Shirt",[c.shirt[0]+(c.pms?" · "+c.pms:""),c.shirt[1]]],["Line",c.print],["Signature",c.accent]].map(([k,[n,h]])=>`<span><i style="background:${h}"></i>${k}: ${esc(n)} <em>${h}</em></span>`).join("");}
-  $("#fillPrint").setAttribute("aria-pressed",st.fill==="print");$("#fillOpen").setAttribute("aria-pressed",st.fill==="open");
+  {const c=CW.find(x=>x.key===st.cw),same=(a,b)=>a.toLowerCase()===b.toLowerCase();
+   const edited=!same(st.body,c.shirt[1])||!same(st.ink,c.print[1])||st.sigMode!=="accent";
+   $("#cwVal").textContent=c.num+" "+c.name+(edited?" · edited":"");
+   $("#cwLine").innerHTML=[["Shirt",[st.shirtName+(st.shirtPms?" · "+st.shirtPms:""),st.body]],["Ink",[st.inkName,st.ink]],["Signature",[st.sigMode==="ink"?"Same as print":c.accent[0],sigInk()]]].map(([k,[n,h]])=>`<span><i style="background:${h}"></i>${k}: ${esc(n)} <em>${h}</em></span>`).join("");}
+  $("#shirtVal").textContent=st.shirtName;$("#inkVal").textContent=st.inkName+" "+st.ink;
+  document.querySelectorAll("#shirtSw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.hex.toLowerCase()===st.body.toLowerCase()));
+  document.querySelectorAll("#inkSw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.hex.toLowerCase()===st.ink.toLowerCase()));
+  $("#inkPick").value=/^#[0-9a-f]{6}$/i.test(st.ink)?st.ink.toLowerCase():"#121212";
+  const oc=oneColour(), fillNow=oc?"open":st.fill;
+  $("#fillPrint").setAttribute("aria-pressed",fillNow==="print");$("#fillOpen").setAttribute("aria-pressed",fillNow==="open");
+  $("#fillNote").textContent=oc?"One-colour design: the letters are knocked out, so the shirt shows through.":'Open decision. See "White fills" in the spec column.';
+  document.querySelectorAll("#placeSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.place));
+  document.querySelectorAll("#sigSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.sigMode));
+  // two tabs so the column fits one screen: Colour (colourway, shirt, ink, fills, finish) and Placement (prints, signature)
+  document.querySelectorAll("#ctlTab button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.tab));
+  document.querySelectorAll(".controls .ctl[data-tab]").forEach(c=>c.hidden=c.dataset.tab!==st.tab);
+  if(st.tab==="place"){$("#grpFront").hidden=st.place!=="front";$("#grpChest").hidden=st.place!=="chest_back";$("#grpBack").hidden=st.place!=="chest_back";}
+  $("#cwidthVal").textContent=frac(st.cwidth);$("#cdropVal").textContent=frac(st.cdrop);$("#coverVal").textContent=frac(st.cover);
+  $("#bwidthVal").textContent=frac(st.bwidth);$("#bdropVal").textContent=frac(st.bdrop);
   $("#measOn").setAttribute("aria-pressed",st.meas);$("#measOff").setAttribute("aria-pressed",!st.meas);
   document.querySelectorAll("#fitSeg button").forEach(b=>b.setAttribute("aria-pressed",b.id==="fit-"+blank().fit));
   document.querySelectorAll("#finishSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.finish));
   document.querySelectorAll("#sizeSeg button").forEach(b=>b.setAttribute("aria-pressed",b.id==="size-"+st.size));
   {const z=sizeNow(),f=fitSet();$("#sizeVal").innerHTML=`<b>${esc(f.style)} ${st.size}</b> · chest ${frac8(z.chest)} in · length ${frac8(z.length)} in`+(f.status==="placeholder"?` <span class="ph">Placeholder blank</span>`:` <span class="ok">PJ's blank</span>`);}
   $("#pinOn").setAttribute("aria-pressed",st.pins);$("#pinOff").setAttribute("aria-pressed",!st.pins);stage.classList.toggle("nopins",!st.pins);
-  $("#dropVal").textContent=frac(st.drop);$("#widthVal").textContent=frac(st.width)+" x "+frac(Math.round(printH()*4)/4);
+  $("#dropVal").textContent=frac(st.drop);$("#widthVal").textContent=frac(st.width)+" x "+frac(Math.round(printH()*8)/8);
   $("#sdropVal").textContent=frac(st.sdrop);$("#swidthVal").textContent=frac(st.swidth);
-  const art=s.art; ["#sdrop","#swidth","#drop","#width","#fillPrint","#fillOpen"].forEach(q=>$(q).disabled=!art);
+  const art=s.art; ["#sdrop","#swidth","#drop","#width","#cwidth","#cdrop","#cover","#bwidth","#bdrop","#fillPrint","#fillOpen"].forEach(q=>$(q).disabled=!art);
+  if(oc){$("#fillPrint").disabled=true;$("#fillOpen").disabled=true;}
 }
 function rgbHex(rgb){const m=rgb.match(/\d+/g);return m?"#"+m.slice(0,3).map(x=>(+x).toString(16).padStart(2,"0")).join(""):"";}
 
@@ -427,45 +513,76 @@ function dim(c,x1,y1,x2,y2,label,vert){
   if(vert){c.fillRect(mx+22,my-30,w+20,56);c.fillStyle="#497CB5";c.fillText(label,mx+32,my+14);}
   else{c.fillRect(mx-w/2-10,my-66,w+20,56);c.fillStyle="#497CB5";c.fillText(label,mx-w/2,my-24);}
 }
+// Placements (3.0): "front" = one print center front; "chest_back" = small print over the wearer's left chest
+// (+x is the wearer's left) and a big one center back, under the signature. Any design can use either.
+function drawArt(c,A,x,y,w,h){
+  if(!oneColour()&&st.fill==="print") c.drawImage(tinted(A.fill,"#FAFAF7"),x,y,w,h);
+  c.drawImage(tinted(A.ink,st.ink),x,y,w,h);
+}
+function vlabel(c,x,y,txt){c.save();c.translate(x,y);c.rotate(-Math.PI/2);c.font="600 44px 'IBM Plex Mono', Menlo, monospace";const lw=c.measureText(txt).width;c.fillStyle="#fff";c.fillRect(-lw/2-10,-46,lw+20,56);c.fillStyle="#497CB5";c.fillText(txt,-lw/2,0);c.restore();}
 function paint(){
   const s=cur(), fc=frontCv.getContext("2d"), bc=backCv.getContext("2d");
   [fc,bc].forEach(c=>{c.fillStyle=st.body;c.fillRect(0,0,TW,TH);});
-  const top=B.fd+st.drop, w=st.width, h=printH();
-  const px=X(-w/2), py=Y(top), pw=w*PPX, ph=h*PPY;
-  const A=imgs[s.key];
-  if(s.art && A){
-    if(st.fill==="print") fc.drawImage(tinted(A.fill,"#FAFAF7"),px,py,pw,ph);
-    fc.drawImage(tinted(A.ink,st.ink),px,py,pw,ph);
+  const A=imgs[s.key], asp=artAspect();
+  if(st.place==="front"){
+    const top=B.fd+st.drop, w=st.width, h=printH();
+    const px=X(-w/2), py=Y(top), pw=w*PPX, ph=h*PPY;
+    if(s.art && A) drawArt(fc,A,px,py,pw,ph);
+    else {
+      fc.setLineDash([26,18]);fc.lineWidth=6;fc.strokeStyle="#121212";fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
+      fc.fillStyle="#121212";fc.font="700 120px Oswald, Impact, sans-serif";fc.textAlign="center";
+      fc.fillText("ART TBA",X(0),py+ph/2+40);fc.textAlign="left";
+    }
+    if(st.meas){
+      fc.save();fc.strokeStyle="#497CB5";fc.lineWidth=4;fc.setLineDash([22,14]);fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
+      // center front line
+      fc.globalAlpha=.55;fc.beginPath();fc.moveTo(X(0),Y(B.fd));fc.lineTo(X(0),Y(B.H));fc.stroke();fc.globalAlpha=1;
+      // drop is measured at center front, so draw it there: off-centre it lands on the body edge of small women's sizes and smears round the side
+      dim(fc,X(0),Y(B.fd),X(0),py,frac(st.drop),true);
+      dim(fc,px,py+ph+90,px+pw,py+ph+90,frac(w)+" print width",false);
+      dim(fc,X(-w/2-.5),py,X(-w/2-.5),py+ph,"",true);
+      vlabel(fc,X(-w/2-.5)-28,py+ph/2,frac(Math.round(h*8)/8)+" tall");
+      fc.restore();
+    }
   } else {
-    fc.setLineDash([26,18]);fc.lineWidth=6;fc.strokeStyle="#121212";fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
-    fc.fillStyle="#121212";fc.font="700 120px Oswald, Impact, sans-serif";fc.textAlign="center";
-    fc.fillText("ART TBA",X(0),py+ph/2+40);fc.textAlign="left";
-  }
-  if(st.meas){
-    fc.save();fc.strokeStyle="#497CB5";fc.lineWidth=4;fc.setLineDash([22,14]);fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
-    // center front line
-    fc.globalAlpha=.55;fc.beginPath();fc.moveTo(X(0),Y(B.fd));fc.lineTo(X(0),Y(B.H));fc.stroke();fc.globalAlpha=1;
-    // drop is measured at center front, so draw it there: off-centre it lands on the body edge of small women's sizes and smears round the side
-    dim(fc,X(0),Y(B.fd),X(0),py,frac(st.drop),true);
-    dim(fc,px,py+ph+90,px+pw,py+ph+90,frac(w)+" print width",false);
-    dim(fc,X(-w/2-.5),py,X(-w/2-.5),py+ph,"",true);
-    fc.save();fc.translate(X(-w/2-.5)-28,py+ph/2);fc.rotate(-Math.PI/2);fc.font="600 44px 'IBM Plex Mono', Menlo, monospace";const lb=frac(Math.round(h*4)/4)+" tall";const lw=fc.measureText(lb).width;fc.fillStyle="#fff";fc.fillRect(-lw/2-10,-46,lw+20,56);fc.fillStyle="#497CB5";fc.fillText(lb,-lw/2,0);fc.restore();
-    fc.restore();
+    // chest: measured from the high point of the shoulder (top of the model = 0) and over from center front to the print's middle
+    const w=st.cwidth, h=w*asp, cx=st.cover, top=st.cdrop;
+    const px=X(cx-w/2), py=Y(top), pw=w*PPX, ph=h*PPY;
+    if(s.art && A) drawArt(fc,A,px,py,pw,ph);
+    if(st.meas){
+      fc.save();fc.strokeStyle="#497CB5";fc.lineWidth=4;fc.setLineDash([22,14]);fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
+      fc.globalAlpha=.55;fc.beginPath();fc.moveTo(X(0),Y(B.fd));fc.lineTo(X(0),Y(B.H));fc.stroke();fc.globalAlpha=1;
+      dim(fc,X(cx+w/2+.6),Y(0),X(cx+w/2+.6),py,frac(top)+" HPS",true);
+      dim(fc,X(0),py+ph+90,X(cx),py+ph+90,frac(cx)+" CF",false);
+      dim(fc,px,py-50,px+pw,py-50,"",false);
+      fc.font="600 44px 'IBM Plex Mono', Menlo, monospace";{const t=frac(w);const tw=fc.measureText(t).width;fc.fillStyle="#fff";fc.fillRect(px+pw/2-tw/2-10,py-50-66,tw+20,56);fc.fillStyle="#497CB5";fc.fillText(t,px+pw/2-tw/2,py-50-24);}
+      fc.restore();
+    }
   }
   // back: signature at center back neck. Canvas is mirrored so it reads from behind.
   bc.save();bc.translate(TW,0);bc.scale(-1,1);
   const sw=st.swidth, sy=B.bd+st.sdrop;
   if(s.art && imgs.sig){
     const sh=sw*imgs.sig.height/imgs.sig.width; st._sh=sh;
-    bc.drawImage(tinted(imgs.sig,st.sig),TW-X(sw/2),Y(sy),sw*PPX,sh*PPY);
+    bc.drawImage(tinted(imgs.sig,sigInk()),TW-X(sw/2),Y(sy),sw*PPX,sh*PPY);
     if(st.meas){
       bc.strokeStyle="#497CB5";bc.lineWidth=4;bc.setLineDash([18,12]);bc.strokeRect(TW-X(sw/2),Y(sy),sw*PPX,sh*PPY);bc.setLineDash([]);
       dim(bc,TW-X(sw/2+.8),Y(B.bd),TW-X(sw/2+.8),Y(sy),frac(st.sdrop),true);
-      dim(bc,TW-X(sw/2),Y(sy+sh)+80,TW-X(-sw/2),Y(sy+sh)+80,frac(sw)+" signature",false);
+      if(st.place==="front") dim(bc,TW-X(sw/2),Y(sy+sh)+80,TW-X(-sw/2),Y(sy+sh)+80,frac(sw)+" signature",false);
     }
   } else if(st.meas){
     bc.fillStyle="rgba(73,124,181,.9)";bc.font="600 46px 'IBM Plex Mono', Menlo, monospace";bc.textAlign="center";
     bc.fillText("BACK · TBC",TW-X(0),Y(12));bc.textAlign="left";
+  }
+  if(st.place==="chest_back" && s.art && A){
+    const w=st.bwidth, h=w*asp, top=B.bd+st.bdrop, x0=TW-X(w/2);
+    drawArt(bc,A,x0,Y(top),w*PPX,h*PPY);
+    if(st.meas){
+      bc.strokeStyle="#497CB5";bc.lineWidth=4;bc.setLineDash([22,14]);bc.strokeRect(x0,Y(top),w*PPX,h*PPY);bc.setLineDash([]);
+      // measured from the back collar at center back; drawn beside the print so it doesn't cross the signature's line
+      dim(bc,TW-X(w/2+.7),Y(B.bd),TW-X(w/2+.7),Y(top),frac(st.bdrop),true);
+      dim(bc,TW-X(w/2),Y(top+h)+90,TW-X(-w/2),Y(top+h)+90,frac(w)+" back print",false);
+    }
   }
   bc.restore();
   if(fTex){fTex.needsUpdate=true;bTex.needsUpdate=true;}
@@ -487,10 +604,12 @@ function surf(x,y,from){ // point on the tee surface, seen from the front (+1) o
   return h?[h.point.x,h.point.y-B.H/2,h.point.z+.25*from]:[x,y,0];
 }
 function updateHot(){
-  const top=B.fd+st.drop;
-  const pos={"Print size":surf(0,-(top+printH()/2),1),"Down from collar":surf(0,-(B.fd+st.drop/2),1),
-    "Neck label":surf(0,-.9,1),"Signature":surf(0,-(B.bd+st.sdrop+(st._sh||1)/2),-1),"Blank":surf(-.41*B.W,-.214*B.H,1),"Size run":surf(.24*B.W,-.93*B.H,1)};
-  HOT.forEach(h=>h.p=pos[h.key]);
+  const top=B.fd+st.drop, ch=st.cwidth*artAspect(), chest=st.place==="chest_back";
+  const pos={print:chest?surf(st.cover,-(st.cdrop+ch/2),1):surf(0,-(top+printH()/2),1),
+    drop:chest?surf(st.cover,-Math.max(.9,st.cdrop-.8),1):surf(0,-(B.fd+st.drop/2),1),
+    neck:surf(0,-.9,1),sig:surf(0,-(B.bd+st.sdrop+(st._sh||1)/2),-1),blank:surf(-.41*B.W,-.214*B.H,1),run:surf(.24*B.W,-.93*B.H,1),
+    back:chest?surf(0,-(B.bd+st.bdrop+st.bwidth*artAspect()/2),-1):null};
+  HOT.forEach(h=>h.p=pos[h.role]);
 }
 // ---------- fabric ----------
 // PJ's note on v1: "the T-shirts look like plastic". A page-drawn knit didn't work (the web models are too
@@ -604,7 +723,7 @@ function init3D(){
   controls=new THREE.OrbitControls(camera,renderer.domElement);
   controls.enableDamping=true;controls.minDistance=20;controls.maxDistance=170;controls.enablePan=false;
   controls.addEventListener("start",()=>{tween=null;});
-  HOT.forEach(h=>{const b=document.createElement("button");b.type="button";b.className="hs";b.id="hs"+h.n;b.textContent=pinNo(h.key);b.hidden=!pinNo(h.key);b.setAttribute("aria-label","Spec: "+h.key);b.addEventListener("click",()=>hit(h.key,b));stage.appendChild(b);h.el=b;});
+  HOT.forEach(h=>{const b=document.createElement("button");b.type="button";b.className="hs";b.id="hs"+h.n;b.textContent=pinNo(h);b.hidden=!b.textContent;b.setAttribute("aria-label","Spec: "+h.key);b.addEventListener("click",()=>hit(h.key,b));stage.appendChild(b);h.el=b;});
   resize();new ResizeObserver(resize).observe(stage);
   setCam(VIEWS[0].dir,true);
   paint();loop();
@@ -645,7 +764,7 @@ function loop(){
   controls.update();renderer.render(scene,camera);
   const w=stage.clientWidth,h=stage.clientHeight,camDir=camera.position.clone().normalize();
   HOT.forEach(hs=>{
-    if(!cur().art && (hs.key==="Print size"||hs.key==="Down from collar")){hs.el.dataset.off="1";return;}
+    if(!cur().art && (hs.role==="print"||hs.role==="drop"||hs.role==="back")){hs.el.dataset.off="1";return;}
     if(!hs.p){hs.el.dataset.off="1";return;}const p=new THREE.Vector3(...hs.p);p.y+=B.H/2;
     const facing=hs.inside? camDir.z>0.55 : (hs.side>0? camDir.z>-0.1 : camDir.z<0.1);
     const s=p.clone().project(camera);hs.el.style.left=((s.x+1)/2*w)+"px";hs.el.style.top=((1-s.y)/2*h)+"px";
@@ -661,9 +780,9 @@ async function renderShots(){
   const SH=__SHOTS__, out={}, W=900, H=1200;
   renderer.setPixelRatio(1);renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();
   for(const sh of SH){
-    Object.assign(st,{meas:false,pins:false,blank:BL.defaults.unisex,size:"M",view:"front"},sh.st||{});
+    styleDefaults((sh.st&&sh.st.style)||st.style);
+    Object.assign(st,{meas:false,pins:false,blank:BL.defaults.unisex,size:"M",view:"front",sigMode:"accent"},sh.st||{});
     st.finish=(sh.st&&sh.st.finish)||blank().finish;
-    if(ART[st.style]&&!(sh.st&&"width" in sh.st))st.width=ART[st.style].start_w;
     if(sh.cw)setCw(sh.cw);if(sh.st&&"fill" in sh.st)st.fill=sh.st.fill;
     applySize();renderPanel();paint();
     const v=VIEWS.find(x=>x.k===st.view);const d=new THREE.Vector3(...v.dir).normalize();

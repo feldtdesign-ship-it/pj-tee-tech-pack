@@ -1,10 +1,13 @@
-"""Builds dist/index.html (+ dist/m/ models), the PDF, dist/og-card.png, and the root index.html from src/ and assets/. Run: python3 build.py"""
+"""Builds dist/index.html (+ dist/m/ models), the PDF, dist/og-card.png, and the root index.html from src/ and assets/.
+Run: python3 build.py          (everything)
+     python3 build.py --page   (page only: skips the card, renders and PDF, for quick checks; never push after this alone)"""
 import json, base64, sys, pathlib, shutil, subprocess, tempfile, html, os
 ROOT = pathlib.Path(__file__).parent
+PAGE_ONLY = "--page" in sys.argv
 # Link preview (unfurl card) for iMessage, Slack, etc. The image URL must be absolute.
 SITE = "https://feldtdesign-ship-it.github.io/pj-tee-tech-pack/"
-OG_TITLE = "PJ Tee Tech Pack 2.0 (Beta)"
-OG_DESC = "Spin PJ O'Rourke II's graphic tee in 3D: print placement, colors, and the print spec."
+OG_TITLE = "PJ Tee Tech Pack 3.0 (Beta)"
+OG_DESC = "Spin PJ O'Rourke II's graphic tees in 3D: every Shaka Wear colour, any ink, chest, back or front placement, and the print spec."
 CHROME = os.environ.get("CHROME", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 sys.path.insert(0, str(ROOT / "src"))
 from data import STYLES, PRINTER_RULES
@@ -43,7 +46,8 @@ t = t.replace("__COLOURWAYS__", json.dumps(COLOURWAYS))
 shutil.copy2(ROOT / "tools/qc.js", ROOT / "dist/qc.js")   # QC helpers, loaded only with #qc
 for a in ARTWORK.values():
     for f in (a["ink"], a["fill"]): shutil.copy2(A / f, ROOT / "dist/m" / f)
-t = t.replace("__ART__", json.dumps({k: {"ink": "m/" + a["ink"], "fill": "m/" + a["fill"], "start_w": a["start_w"]} for k, a in ARTWORK.items()}))
+t = t.replace("__ART__", json.dumps({k: {"ink": "m/" + a["ink"], "fill": "m/" + a["fill"], "start_w": a["start_w"], "place": a.get("place", "front"),
+    "chest_w": a.get("chest_w"), "back_w": a.get("back_w"), "one_colour": a.get("one_colour", False)} for k, a in ARTWORK.items()}))
 for v in MODELS.values():
     for f in (v["glb"], v["shade"], v["wash"]): shutil.copy2(A / f, ROOT / "dist/m" / f)
 t = t.replace("__TEE_GLB__", json.dumps({k: "m/" + v["glb"] for k, v in MODELS.items()}))
@@ -56,7 +60,9 @@ t = t.replace("__SIGINK__", b64("PJ_Signature_ink_transparent.png")).replace("__
 card = ROOT / "dist/og-card.png"
 c = (ROOT / "src/og_card_template.html").read_text()
 c = c.replace("__SIG__", b64("PJ_Signature_cream_transparent.png"))
-if pathlib.Path(CHROME).exists() or shutil.which(CHROME):
+if PAGE_ONLY:
+    print("dist/og-card.png skipped (--page)")
+elif pathlib.Path(CHROME).exists() or shutil.which(CHROME):
     card.unlink(missing_ok=True)
     with tempfile.TemporaryDirectory() as d:
         (pathlib.Path(d) / "card.html").write_text(c)
@@ -91,7 +97,7 @@ print("dist/index.html", round(len(t) / 1e6, 2), "MB")
 # ---------- renders for the PDF ----------
 # Serve dist/ on a local port, open the page in headless Chrome with #render, and wait for the page
 # to POST its pictures back. The page decides when it is done, so there is no timing guesswork.
-def render_views(timeout=180):
+def render_views(timeout=360):
     import http.server, socketserver, threading
     got = {}
     done = threading.Event()
@@ -118,8 +124,8 @@ def render_views(timeout=180):
             srv.shutdown()
     return got if ok else None
 
-RENDERS = render_views() if (pathlib.Path(CHROME).exists() or shutil.which(CHROME)) else None
-print("renders:", len(RENDERS) if RENDERS else "FAILED")
+RENDERS = render_views() if not PAGE_ONLY and (pathlib.Path(CHROME).exists() or shutil.which(CHROME)) else None
+print("renders:", "skipped (--page)" if PAGE_ONLY else len(RENDERS) if RENDERS else "FAILED")
 
 # ---------- the paper tech pack ----------
 # Same data and renders as the page, printed to PDF by headless Chrome. Skipped (old PDF kept) if renders failed.
@@ -137,7 +143,7 @@ if RENDERS:
         src = pathlib.Path(d) / "pack.html"; src.write_text(ph)
         PDF.unlink(missing_ok=True)
         # Chrome's --print-to-pdf hangs on Chrome 153 (Mac), so print over the DevTools connection (tools/print_pdf.mjs, needs Node 22+).
-        r = subprocess.run(["node", str(ROOT / "tools/print_pdf.mjs"), CHROME, str(src), str(PDF)], capture_output=True, text=True, timeout=200)
+        r = subprocess.run(["node", str(ROOT / "tools/print_pdf.mjs"), CHROME, str(src), str(PDF)], capture_output=True, text=True, timeout=360)
         if r.returncode: print("PDF print error:", r.stderr.strip()[-300:])
     print("dist/PJ_Tee_Tech_Pack.pdf", f"{PDF.stat().st_size/1e6:.1f} MB" if PDF.exists() else "FAILED")
 else:
