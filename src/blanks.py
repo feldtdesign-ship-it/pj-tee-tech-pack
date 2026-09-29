@@ -38,8 +38,7 @@ BLANKS = {
         "label": "Shaka Wear SHGD", "maker": "Shaka Wear", "style": "SHGD",
         "name": "Unisex Max Heavyweight Garment-Dyed Tee",
         "status": "confirmed", "fit": "unisex", "finish": "garment_dyed",
-        # Shape: the Bella tee, stretched to SHGD sizes, in SHGD colours and the garment-dyed look (Michael, 2026-09-29:
-        # "the bella T look better"). The boxy SHGD model (MODELS "boxy", v1 and v2) is kept; set model back to "boxy" to use it.
+        # Shape: the Bella tee, in SHGD sizes, colours and the garment-dyed look (Michael, 2026-09-29). Boxy models kept, unused.
         "model": "unisex",
         "source": "https://www.ssactivewear.com/p/shaka_wear/shgd",
         "fabric": "7.5 oz./yd², 100% USA cotton, 16 singles. 3.5% Lycra ribbing.",

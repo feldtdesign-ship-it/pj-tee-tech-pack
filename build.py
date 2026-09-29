@@ -6,7 +6,7 @@ ROOT = pathlib.Path(__file__).parent
 PAGE_ONLY = "--page" in sys.argv
 # Link preview (unfurl card) for iMessage, Slack, etc. The image URL must be absolute.
 SITE = "https://feldtdesign-ship-it.github.io/pj-tee-tech-pack/"
-OG_TITLE = "PJ Tee Tech Pack 3.1 (Beta)"
+OG_TITLE = "PJ Tee Tech Pack 3.0 (Beta)"
 OG_DESC = "Spin PJ O'Rourke II's graphic tees in 3D: every Shaka Wear colour, any ink, chest, back or front placement, and the print spec."
 CHROME = os.environ.get("CHROME", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 sys.path.insert(0, str(ROOT / "src"))
@@ -38,21 +38,12 @@ for s_ in STYLES:
     else:
         SHOTS += [{"id": f"{k}_front", "cw": "classic", "st": {"style": k, "meas": True, "view": "front"}},
                   {"id": f"{k}_back", "cw": "classic", "st": {"style": k, "meas": True, "view": "back"}}]
-from trims import TRIMS as _T
-_hero = {"style": "s01", "noArt": True, "trimsAll": True, "pocket": True}
-SHOTS += [{"id": "tag_front", "cw": "classic", "st": {**_hero, "view": "front"}},
-          {"id": "tag_back", "cw": "classic", "st": {**_hero, "view": "back"}}]
-SHOTS += [{"id": f"tag_{x['key']}", "cw": "classic", "focus": x["key"], "st": dict(_hero)} for x in _T]
 t = t.replace("__SHOTS__", json.dumps(SHOTS))
 t = t.replace("__COLOURWAYS__", json.dumps(COLOURWAYS))
-# Small branding (3.1): tag spots, pocket, label colours. PJ's logo line (from PJOR_Logo.ai via tools/render_pdf.swift).
-from trims import TRIMS, POCKET, LABEL
-t = t.replace("__TRIMS__", json.dumps({"trims": TRIMS, "pocket": POCKET, "label": LABEL}))
 # Every 3D base model in src/blanks.py MODELS: tee (.glb), fold shading, garment-dye map. Embedded so the page is one file.
 # Copied to dist/m/ and loaded on demand by the page (only the models a blank needs), so the page stays light.
 (ROOT / "dist/m").mkdir(parents=True, exist_ok=True)
-shutil.copy2(ROOT / "tools/qc.js", ROOT / "dist/qc.js")
-shutil.copy2(A / "pjor_logo_line.png", ROOT / "dist/m/pjor_logo_line.png")   # QC helpers, loaded only with #qc
+shutil.copy2(ROOT / "tools/qc.js", ROOT / "dist/qc.js")   # QC helpers, loaded only with #qc
 for a in ARTWORK.values():
     for f in (a["ink"], a["fill"]): shutil.copy2(A / f, ROOT / "dist/m" / f)
 t = t.replace("__ART__", json.dumps({k: {"ink": "m/" + a["ink"], "fill": "m/" + a["fill"], "start_w": a["start_w"], "place": a.get("place", "front"),
@@ -135,11 +126,6 @@ def render_views(timeout=360):
 
 RENDERS = render_views() if not PAGE_ONLY and (pathlib.Path(CHROME).exists() or shutil.which(CHROME)) else None
 print("renders:", "skipped (--page)" if PAGE_ONLY else len(RENDERS) if RENDERS else "FAILED")
-# Tag heroes as image files too, to study each position (dist/heroes/tag_*.png)
-if RENDERS:
-    (ROOT / "dist/heroes").mkdir(exist_ok=True)
-    for k, v in RENDERS.items():
-        if k.startswith("tag_"): (ROOT / "dist/heroes" / f"{k}.png").write_bytes(base64.b64decode(v.split(",", 1)[1]))
 
 # ---------- the paper tech pack ----------
 # Same data and renders as the page, printed to PDF by headless Chrome. Skipped (old PDF kept) if renders failed.
@@ -150,12 +136,9 @@ if RENDERS:
     from colourways import SOURCE as CW_SOURCE
     from data import SIZE_POMS
     ph = make_pdf_html(STYLES, PRINTER_RULES, SIZE_POMS, BLANKS, DEFAULT_BLANK, COLOURWAYS, CW_SOURCE, RENDERS, SITE, ARTWORK,
-                       datetime.date.today().strftime("%b %-d, %Y"), trims=__import__("trims").__dict__)
+                       datetime.date.today().strftime("%b %-d, %Y"))
     ph = ph.replace("SIG_CREAM", b64("PJ_Signature_cream_transparent.png"))
     for k, a in ARTWORK.items(): ph = ph.replace(f"ART_INK_{k}", b64(a["ink"]))
-    import numpy as _np; from PIL import Image as _Im; import io as _io   # logo line in white for the dark label panel
-    _lg = _np.asarray(_Im.open(A / "pjor_logo_line.png")).copy(); _lg[..., :3] = 247; _bf = _io.BytesIO(); _Im.fromarray(_lg).save(_bf, "PNG")
-    ph = ph.replace("ART_LOGO", "data:image/png;base64," + base64.b64encode(_bf.getvalue()).decode())
     with tempfile.TemporaryDirectory() as d:
         src = pathlib.Path(d) / "pack.html"; src.write_text(ph)
         PDF.unlink(missing_ok=True)

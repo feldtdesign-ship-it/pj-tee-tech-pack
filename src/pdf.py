@@ -121,11 +121,11 @@ def header(s, sheet, of, title, blank_line):
     return f"""<header class="band">
   <img src="SIG_CREAM" alt="">
   <div><div class="h t">Style {e(s['num'])} <span>{e(s['name'])}</span></div>
-    <div class="mono sub">Tee tech pack v3.1 · sheet {sheet} of {of}, {e(title)} · existing blank · screen print</div></div>
+    <div class="mono sub">Tee tech pack v3.0 · sheet {sheet} of {of}, {e(title)} · existing blank · screen print</div></div>
   <div class="meta">
-    <div><b>Style number</b>{TBC}</div><div><b>Pack</b>v3.1, {e(DATE)}</div>
+    <div><b>Style number</b>{TBC}</div><div><b>Pack</b>v3.0, {e(DATE)}</div>
     <div><b>Artist</b>PJ O'Rourke II</div><div><b>Approved by</b>{TBC}</div>
-    <div><b>Blank</b>{blank_line}</div><div><b>3.1 page</b>see page 2</div>
+    <div><b>Blank</b>{blank_line}</div><div><b>3.0 page</b>see page 2</div>
   </div></header>"""
 
 
@@ -153,7 +153,7 @@ def rules_bar(rules):
 
 
 def foot(left, n):
-    return f'<div class="foot mono"><span>PJ O\'Rourke II / Tee tech pack v3.1 / {e(left)}</span><span>{n:02d}</span></div>'
+    return f'<div class="foot mono"><span>PJ O\'Rourke II / Tee tech pack v3.0 / {e(left)}</span><span>{n:02d}</span></div>'
 
 
 def pom_table(b, poms):
@@ -183,7 +183,7 @@ def pom_table(b, poms):
 <div class="note">{note}</div>"""
 
 
-def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, R, site, artwork, date, trims=None):
+def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, R, site, artwork, date):
     global DATE
     DATE = date
     ub = blanks[defaults["unisex"]]
@@ -195,11 +195,9 @@ def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, 
     pages.append(f"""<div class="page cover"><div class="mono">Production / graphic tees / tech pack</div>
   <img src="SIG_CREAM" alt=""><div class="h t">Tee <span>Tech Pack</span></div>
   <p>{len(styles)} styles, drawn by PJ. Every number came from a file or it says TBC. PJ's blank is the Shaka Wear SHGD; the women's blank is still a placeholder.</p>
-  <div class="bar"></div><div class="foot mono"><span>PJ O'Rourke II / New York</span><span>Tech pack v3.1 / {e(date)}</span></div></div>""")
+  <div class="bar"></div><div class="foot mono"><span>PJ O'Rourke II / New York</span><span>Tech pack v3.0 / {e(date)}</span></div></div>""")
     # contents
     toc, p = [], 3
-    if trims:
-        toc += [(3, "Branding: tag heroes"), (4, "Branding: tag spec and decisions")]; p = 5
     for s in styles:
         sheets = [("the turnaround", 1), ("print and placement", 1)] + ([("colourways", 1)] if s["art"] else []) + [("measurements, finishing, sign off", 1)]
         for t, _ in sheets:
@@ -215,44 +213,12 @@ def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, 
       <p><b>His line stays his line.</b> No cleanup, no redraws, no smoothing. The signature is his real signature file.</p>
       <p><b>PJ signs every strike-off.</b> Nothing runs without the three signatures on the last sheet of each style.</p></div>
     <div class="toc"><div class="mono">Contents</div>{tocs}</div>
-    <div><div class="mono">The 3.1 page</div>
-      <p>Same pack, in 3D. Spin the tee, switch Unisex / Women's and every size, try the colourways, any Shaka Wear colour and any ink, center front or left chest + back, woven tags in every spot (Branding tab), tap a number to jump to its spec line.</p>
+    <div><div class="mono">The 3.0 page</div>
+      <p>Same pack, in 3D. Spin the tee, switch Unisex / Women's and every size, try the colourways, any Shaka Wear colour and any ink, center front or left chest + back, tap a number to jump to its spec line.</p>
       <div class="link">{e(site)}</div>
       <p style="font-size:12px">The 3D tees are stand-ins stretched to each blank's published chest and length: Shaka Wear SHGD (unisex, garment-dyed) and Bella+Canvas 6110 (women's, placeholder). This PDF is built from the same data and renders as the page.</p></div>
   </div>{foot('Read me', n)}</div>""")
     n = 3
-    if trims:
-        T, P, L, D = trims["TRIMS"], trims["POCKET"], trims["LABEL"], trims["DECISIONS"]
-        band = lambda sheet, title: f"""<header class="band"><img src="SIG_CREAM" alt=""><div><div class="h t">Branding <span>labels and tags</span></div>
-    <div class="mono sub">Tee tech pack v3.1 · branding sheet {sheet} of 2, {e(title)} · woven labels · PJ's signature from PJOR_Logo.ai</div></div>
-  <div class="meta"><div><b>Label maker</b>{TBC}</div><div><b>Pack</b>v3.1, {e(date)}</div><div><b>Artist</b>PJ O'Rourke II</div><div><b>Approved by</b>{TBC}</div>
-    <div><b>Blank</b>{blank_line}</div><div><b>3.1 page</b>Branding tab</div></div></header>"""
-        heroes = "".join(panel(f"{t['key']} {t['name']}", t["kind"], e(t["where"]), shot(R, f"tag_{t['key']}", "")) for t in T)
-        pages.append(f"""<div class="page">{band(1, "tag heroes")}
-  <div class="row" style="flex:none;height:3.1in">{panel("Front", "all tags + pocket", "Plain tee, every spot on. Pocket added to show D (SHGD has none).", shot(R, "tag_front", "Facing you"))}{panel("Back", "all tags", "Back: the signature print; F sits inside the right side seam.", shot(R, "tag_back", "Facing away"))}
-    <section class="panel" style="flex:1.6"><div class="bar dark"><div class="h">How to read these</div><div class="mono">Starting points</div></div><div class="pad">
-      <p class="note" style="font-size:12px;margin:0">Close-ups of each spot on PJ's blank (Shaka Wear SHGD, Bella shape, size M, Classic cream). Labels: black woven ground, white thread, PJ's signature from <b>PJOR_Logo.ai</b>. Sizes and positions are common starting points, not from PJ or a label maker: <span class="tbc">TBC</span>. The 3.1 page's Branding tab switches spots, label art (signature or name) and colours, and flies the camera to each tag.</p></div></section></div>
-  <div class="row" style="display:grid;grid-template-columns:repeat(6,1fr)">{heroes}</div>
-  {foot("Branding", n)}</div>""")
-        n += 1
-        rows = "".join(f'<tr><td class="k">{e(t["key"])} {e(t["name"])}</td><td>{e(t["kind"])}</td><td class="n">{frac8(t["w"])} x {frac8(t["h"])} in</td><td>{e(t["where"])}</td><td class="n">{TBC}</td></tr>' for t in T)
-        rows += f'<tr><td class="k">Pocket</td><td>patch pocket</td><td class="n">{frac8(P["w"])} x {frac8(P["h"])} in</td><td>{e(P["where"])}</td><td class="n">{TBC}</td></tr>'
-        chips = lambda xs: "".join(f'<div class="chip"><i style="background:{h}"></i>{e(nm)}<em>{h}</em></div>' for nm, h in xs)
-        decs = "".join(f'<div class="dec"><b>{e(a)}</b><p>{e(b)}</p></div>' for a, b in D)
-        pages.append(f"""<div class="page">{band(2, "tag spec and decisions")}<div class="row">
-  <div style="flex:1.5;display:flex;flex-direction:column;gap:14px;min-height:0">
-    <section class="panel"><div class="bar"><div class="h">Tag spots</div><div class="mono">Size shows finished, what's visible</div></div><div class="pad"><table><tr><th>Spot</th><th>Kind</th><th class="n">Size</th><th>Where</th><th class="n">Maker ref</th></tr>{rows}</table>
-      <div class="note">Flag = folded tab sewn into a seam, sticking out. Patch = sewn flat. All sizes and positions are starting points: TBC with PJ and the label maker.</div></div></section>
-    <section class="panel" style="flex:1"><div class="bar dark"><div class="h">Label art</div><div class="mono">From PJOR_Logo.ai</div></div>
-      <div class="art grid" style="background:#161616"><img src="ART_LOGO" alt="" style="border:0;background:transparent;max-height:1.6in"></div>
-      <div class="cap">PJ's signature, from Desktop/LOGO SET/PJ Sig/PJOR_Logo.ai (23.4 x 9.2 in art box). The line weaves in thread; the O and R loops stay the label colour. Woven at this size, fine strokes may need thickening: check with the label maker. Never redrawn.</div></section>
-  </div>
-  <div style="flex:1;display:flex;flex-direction:column;gap:14px;min-height:0">
-    <section class="panel"><div class="bar"><div class="h">Label colours</div><div class="mono">Options on the page</div></div><div class="pad" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div><div class="mono" style="margin-bottom:6px">Ground</div>{chips(L["grounds"])}</div><div><div class="mono" style="margin-bottom:6px">Thread</div>{chips(L["threads"])}</div></div></section>
-    <section class="panel" style="flex:1"><div class="bar"><div class="h">Open decisions</div><div class="mono">Settle before ordering labels</div></div><div class="pad">{decs}</div></section>
-  </div></div>{foot("Branding", n)}</div>""")
-        n += 1
     for s in styles:
         art = s["art"]
         pre = s["key"]
@@ -269,7 +235,7 @@ def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, 
         else:
             panels = (panel("Front", "3D render", "Art TBA. Placement TBC.", shot(R, f"{pre}_front", "Facing you"))
                       + panel("Back", "3D render", "Signature: TBC.", shot(R, f"{pre}_back", "Facing away"))
-                      + panel("3/4 vanity", "3D", "Drop the art into the 3.1 page.", shot(R, None, "3/4"))
+                      + panel("3/4 vanity", "3D", "Drop the art into the 3.0 page.", shot(R, None, "3/4"))
                       + panel("Women's", "3D", "When the art lands.", shot(R, None, "")))
         pages.append(f'<div class="page">{header(s, 1, of, "the turnaround", blank_line)}<div class="row">{panels}{spec_col(s)}</div>{rules_bar(rules)}{foot("Style " + s["num"] + " " + s["name"], n)}</div>')
         n += 1
@@ -300,7 +266,7 @@ def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, 
   <div class="chips">{chips}</div><div class="ln">{e(c['line'])}</div></section>""")
             pages.append(f"""<div class="page">{header(s, 3, of, "colourways", blank_line)}
   <div class="cws">{''.join(cards)}</div>
-  <div class="note" style="font-size:12px"><b>How a colourway lands on this tee:</b> {"shirt = body colour, print = the one ink on both circles (the letters are knocked out, so the shirt shows through), accent = PJ's signature at the back neck." if aw.get("one_colour") else "shirt = body colour, print = front line (white fills left open so the shirt shows), accent = PJ's signature at the back neck. Classic keeps white fills and a black signature."} The 3.1 page tries any shirt colour and any ink. Source: {e(cw_source)}</div>
+  <div class="note" style="font-size:12px"><b>How a colourway lands on this tee:</b> {"shirt = body colour, print = the one ink on both circles (the letters are knocked out, so the shirt shows through), accent = PJ's signature at the back neck." if aw.get("one_colour") else "shirt = body colour, print = front line (white fills left open so the shirt shows), accent = PJ's signature at the back neck. Classic keeps white fills and a black signature."} The 3.0 page tries any shirt colour and any ink. Source: {e(cw_source)}</div>
   {foot("Style " + s["num"] + " " + s["name"], n)}</div>""")
             n += 1
         # sheet 4: measurements, finishing, sign off
@@ -329,6 +295,6 @@ def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, 
     <section class="panel"><div class="bar dark"><div class="h">Sign off</div><div class="mono">Nothing runs without all three</div></div><div class="sign"><div>PJ O'Rourke II</div><div>Michael, Feldt Design</div><div>Printer</div></div></section>
   </div></div>{foot("Style " + s["num"] + " " + s["name"], n)}</div>""")
         n += 1
-    return f"""<!doctype html><html><head><meta charset="utf-8"><title>PJ O'Rourke II Tee Tech Pack v3.1</title>
+    return f"""<!doctype html><html><head><meta charset="utf-8"><title>PJ O'Rourke II Tee Tech Pack v3.0</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=block">
 <style>{CSS}</style></head><body>{''.join(pages)}</body></html>"""

@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PJ Tee Tech Pack 3.1</title>
+<title>PJ Tee Tech Pack 3.0</title>
 __OG__
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -93,15 +93,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:14p
 .sw.pick{background:conic-gradient(#e33,#ec3,#3c5,#3ae,#a3e,#e33);overflow:hidden}
 .sw.pick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
 .ctl .sub2{display:flex;justify-content:space-between;margin:10px 0 5px;color:var(--muted)}
-.ctab{width:100%}
-.trimlist{display:grid;gap:4px}
-.trow{display:grid;grid-template-columns:30px 1fr auto;gap:6px;align-items:center;font-size:12px}
-.trow .tk{font:700 12px/1 var(--h);border:2px solid var(--ink);background:#fff;width:30px;height:26px;cursor:pointer;padding:0}
-.trow .tk[aria-pressed="true"]{background:var(--ink);color:var(--yellow)}
-.trow .look{font:600 11px/1 var(--b);border:2px solid var(--ink);background:#fff;padding:5px 7px;cursor:pointer}
-.trow .look:hover{background:var(--yellow)}
-.trow em{font-style:normal;font-family:var(--m);font-size:9px;color:var(--muted);letter-spacing:.08em}.ctab button{flex:1;min-width:0;font:700 12px/1 var(--h);text-transform:uppercase;letter-spacing:0;padding:8px 2px}
-.controls>.ctl{min-width:0}
+.ctab{width:100%}.ctab button{flex:1;font:700 13px/1 var(--h);text-transform:uppercase;letter-spacing:.02em;padding:8px 6px}
 .views .tog{order:9;margin-left:auto;display:flex;gap:8px;align-items:center}
 .views .tog .seg button{padding:6px 8px;font-size:11px}
 .views .tog .mono{color:var(--muted);font-size:9px}
@@ -208,11 +200,11 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
   <header class="band">
     <img src="__SIG__" alt="PJ O'Rourke signature">
     <div>
-      <h1 class="h t">Tee <span>Tech Pack</span> 3.1 <em class="beta">Beta</em></h1>
+      <h1 class="h t">Tee <span>Tech Pack</span> 3.0 <em class="beta">Beta</em></h1>
       <div class="sub mono">Graphic tees · Shaka Wear SHGD, garment-dyed · screen print</div>
     </div>
     <div class="meta">
-      <div><b>Pack</b>v3.1</div>
+      <div><b>Pack</b>v3.0</div>
       <div><b>Date</b>Sept 29, 2026</div>
       <div><b>Artist</b>PJ O'Rourke II</div>
       <div><b>Approved by</b><span class="tbc">TBC</span></div>
@@ -248,7 +240,6 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
         <div class="seg ctab" id="ctlTab" role="tablist" aria-label="Controls">
           <button type="button" data-v="colour">Colour</button>
           <button type="button" data-v="place">Placement</button>
-          <button type="button" data-v="brand">Branding</button>
         </div>
         <div class="ctl" data-tab="colour">
           <div class="lab mono">Colourway <span class="val" id="cwVal"></span></div>
@@ -315,19 +306,6 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
           </div>
           <div class="note dup">Center back neck.</div>
         </div>
-        <div class="ctl" data-tab="brand">
-          <div class="lab mono">Label art</div>
-          <div class="seg" id="lArtSeg"></div>
-          <div class="sub2 mono">Label colour <span class="val" id="lGroundVal"></span></div>
-          <div class="swatches sm" id="lGroundSw"></div>
-          <div class="sub2 mono">Thread <span class="val" id="lThreadVal"></span></div>
-          <div class="swatches sm" id="lThreadSw"></div>
-        </div>
-        <div class="ctl" data-tab="brand">
-          <div class="lab mono">Tags · Look flies in</div>
-          <div class="trimlist" id="trimList"></div>
-          <div class="note">Woven labels with PJ's signature (PJOR_Logo.ai). Sizes and spots are starting points: TBC.</div>
-        </div>
         <div class="ctl" data-tab="colour">
           <div class="lab mono">Finish</div>
           <div class="seg" id="finishSeg">
@@ -359,7 +337,7 @@ ol.rules .v{font-size:13px;line-height:1.35;margin-top:3px}
     </aside>
   </div>
 
-  <div class="foot mono legal"><span>© 2026 PJ O'Rourke II. All rights reserved. · Tee Tech Pack v3.1</span><span>No reuse without written permission. 3D tees: BlenderKit stand-ins sized to the chosen blank.</span></div>
+  <div class="foot mono legal"><span>© 2026 PJ O'Rourke II. All rights reserved. · Tee Tech Pack v3.0</span><span>No reuse without written permission. 3D tees: BlenderKit stand-ins sized to the chosen blank.</span></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
@@ -433,20 +411,6 @@ function setInk(n,h){st.ink=h;st.inkName=n;render();}
 INKS.forEach(([n,h])=>btn($("#inkSw"),"",{class:"sw sm",title:n+" "+h,"aria-label":"Ink "+n,style:"background:"+h,"data-hex":h},()=>setInk(n,h)));
 {const l=document.createElement("label");l.className="sw sm pick";l.title="Pick any ink colour";l.innerHTML='<input type="color" id="inkPick" value="#121212" aria-label="Pick any ink colour">';$("#inkSw").appendChild(l);
  l.querySelector("input").addEventListener("input",e=>setInk("Custom",e.target.value.toUpperCase()));}
-// ---------- branding: woven labels and tags (3.1, src/trims.py) ----------
-const TR = __TRIMS__;
-st.trims=Object.fromEntries(TR.trims.map(t=>[t.key,!!t.on]));st.pocket=false;
-Object.assign(st,{lArt:TR.label.default.art,lGround:TR.label.default.ground,lThread:TR.label.default.thread});
-TR.label.art.forEach(a=>btn($("#lArtSeg"),a,{"data-v":a},()=>{st.lArt=a;render();}));
-TR.label.grounds.forEach(([n,h])=>btn($("#lGroundSw"),"",{class:"sw sm",title:n,"aria-label":"Label "+n,style:"background:"+h,"data-hex":h},()=>{st.lGround=h;render();}));
-TR.label.threads.forEach(([n,h])=>btn($("#lThreadSw"),"",{class:"sw sm",title:n,"aria-label":"Thread "+n,style:"background:"+h,"data-hex":h},()=>{st.lThread=h;render();}));
-TR.trims.forEach(t=>{const r=document.createElement("div");r.className="trow";
-  r.innerHTML=`<button type="button" class="tk" id="tk-${t.key}" aria-label="Show tag ${t.key}, ${esc(t.name)}">${t.key}</button><span>${esc(t.name)} <em>${t.kind}${t.needs?" · pocket":""}</em></span><button type="button" class="look">Look</button>`;
-  r.querySelector(".tk").addEventListener("click",()=>{st.trims[t.key]=!st.trims[t.key];if(t.needs==="pocket"&&st.trims[t.key])st.pocket=true;render();});
-  r.querySelector(".look").addEventListener("click",()=>{st.trims[t.key]=true;if(t.needs==="pocket")st.pocket=true;render();lookTrim(t.key);});
-  $("#trimList").appendChild(r);});
-{const r=document.createElement("div");r.className="trow";r.innerHTML=`<button type="button" class="tk" id="tk-pocket" aria-label="Add a pocket">+</button><span>Pocket <em>try it · not on SHGD</em></span><span></span>`;
- r.querySelector(".tk").addEventListener("click",()=>{st.pocket=!st.pocket;render();});$("#trimList").appendChild(r);}
 // Shirt colours: every colour of the chosen blank (src/blanks.py), with the maker's Pantone.
 function buildShirtUI(){const cs=blank().colours||[];$("#shirtSw").innerHTML="";
   cs.forEach(([n,pms,h])=>btn($("#shirtSw"),"",{class:"sw sm",title:`${n} · PMS ${pms}`,"aria-label":"Shirt "+n,style:"background:"+h,"data-hex":h},()=>{st.body=h;st.shirtName=n;st.shirtPms=pms;render();}));
@@ -505,12 +469,7 @@ function renderPanel(){
   $("#fillNote").textContent=oc?"One-colour design: the letters are knocked out, so the shirt shows through.":'Open decision. See "White fills" in the spec column.';
   document.querySelectorAll("#placeSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.place));
   document.querySelectorAll("#sigSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.sigMode));
-  document.querySelectorAll("#lArtSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.lArt));
-  document.querySelectorAll("#lGroundSw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.hex===st.lGround));
-  document.querySelectorAll("#lThreadSw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.hex===st.lThread));
-  $("#lGroundVal").textContent=(TR.label.grounds.find(x=>x[1]===st.lGround)||["",""])[0];$("#lThreadVal").textContent=(TR.label.threads.find(x=>x[1]===st.lThread)||["",""])[0];
-  TR.trims.forEach(t=>$("#tk-"+t.key).setAttribute("aria-pressed",!!st.trims[t.key]));$("#tk-pocket").setAttribute("aria-pressed",!!st.pocket);
-  // tabs so the column fits one screen: Colour (colourway, shirt, ink, fills, finish) and Placement (prints, signature)
+  // two tabs so the column fits one screen: Colour (colourway, shirt, ink, fills, finish) and Placement (prints, signature)
   document.querySelectorAll("#ctlTab button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.tab));
   document.querySelectorAll(".controls .ctl[data-tab]").forEach(c=>c.hidden=c.dataset.tab!==st.tab);
   if(st.tab==="place"){$("#grpFront").hidden=st.place!=="front";$("#grpChest").hidden=st.place!=="chest_back";$("#grpBack").hidden=st.place!=="chest_back";}
@@ -568,8 +527,8 @@ function paint(){
   if(st.place==="front"){
     const top=B.fd+st.drop, w=st.width, h=printH();
     const px=X(-w/2), py=Y(top), pw=w*PPX, ph=h*PPY;
-    if(s.art && A && !st.noArt) drawArt(fc,A,px,py,pw,ph);
-    else if(!st.noArt) {
+    if(s.art && A) drawArt(fc,A,px,py,pw,ph);
+    else {
       fc.setLineDash([26,18]);fc.lineWidth=6;fc.strokeStyle="#121212";fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
       fc.fillStyle="#121212";fc.font="700 120px Oswald, Impact, sans-serif";fc.textAlign="center";
       fc.fillText("ART TBA",X(0),py+ph/2+40);fc.textAlign="left";
@@ -589,7 +548,7 @@ function paint(){
     // chest: measured from the high point of the shoulder (top of the model = 0) and over from center front to the print's middle
     const w=st.cwidth, h=w*asp, cx=st.cover, top=st.cdrop;
     const px=X(cx-w/2), py=Y(top), pw=w*PPX, ph=h*PPY;
-    if(s.art && A && !st.noArt) drawArt(fc,A,px,py,pw,ph);
+    if(s.art && A) drawArt(fc,A,px,py,pw,ph);
     if(st.meas){
       fc.save();fc.strokeStyle="#497CB5";fc.lineWidth=4;fc.setLineDash([22,14]);fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
       fc.globalAlpha=.55;fc.beginPath();fc.moveTo(X(0),Y(B.fd));fc.lineTo(X(0),Y(B.H));fc.stroke();fc.globalAlpha=1;
@@ -600,7 +559,6 @@ function paint(){
       fc.restore();
     }
   }
-  if(st.pocket) drawPocket(fc);
   // back: signature at center back neck. Canvas is mirrored so it reads from behind.
   bc.save();bc.translate(TW,0);bc.scale(-1,1);
   const sw=st.swidth, sy=B.bd+st.sdrop;
@@ -616,7 +574,7 @@ function paint(){
     bc.fillStyle="rgba(73,124,181,.9)";bc.font="600 46px 'IBM Plex Mono', Menlo, monospace";bc.textAlign="center";
     bc.fillText("BACK · TBC",TW-X(0),Y(12));bc.textAlign="left";
   }
-  if(st.place==="chest_back" && s.art && A && !st.noArt){
+  if(st.place==="chest_back" && s.art && A){
     const w=st.bwidth, h=w*asp, top=B.bd+st.bdrop, x0=TW-X(w/2);
     drawArt(bc,A,x0,Y(top),w*PPX,h*PPY);
     if(st.meas){
@@ -631,7 +589,7 @@ function paint(){
   INNER_MATS.forEach(m=>m.color.set(st.body).convertSRGBToLinear());
   syncGD();
   if(FABRIC_MATS.length)tintSheen();
-  if(teeMesh){updateHot();updateTrims();}
+  if(teeMesh)updateHot();
 }
 function shade(hex,a){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(v+(a<0?v*a:(255-v)*a))));return "#"+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,"0")).join("");}
 
@@ -759,11 +717,11 @@ function init3D(){
   }))));
   window.ensureModel=k=>load(k).then(()=>{if(k===curModel())applySize();});
   load(curModel()).then(()=>{applySize();$("#loading").remove();
-    if(location.hash==="#render")Promise.all(Object.keys(TEE_GLB).map(load)).then(()=>artReady).then(()=>(document.fonts?document.fonts.ready:0)).then(()=>Promise.all(Object.values(SHADE).map(t=>t.userData.ready))).then(()=>logoReady).then(renderShots);
+    if(location.hash==="#render")Promise.all(Object.keys(TEE_GLB).map(load)).then(()=>artReady).then(()=>(document.fonts?document.fonts.ready:0)).then(()=>Promise.all(Object.values(SHADE).map(t=>t.userData.ready))).then(renderShots);
     else setTimeout(()=>Object.keys(TEE_GLB).forEach(load),1500);   // warm the others in the background
   });
   controls=new THREE.OrbitControls(camera,renderer.domElement);
-  controls.enableDamping=true;controls.minDistance=4;controls.maxDistance=170;controls.enablePan=false;
+  controls.enableDamping=true;controls.minDistance=20;controls.maxDistance=170;controls.enablePan=false;
   controls.addEventListener("start",()=>{tween=null;});
   HOT.forEach(h=>{const b=document.createElement("button");b.type="button";b.className="hs";b.id="hs"+h.n;b.textContent=pinNo(h);b.hidden=!b.textContent;b.setAttribute("aria-label","Spec: "+h.key);b.addEventListener("click",()=>hit(h.key,b));stage.appendChild(b);h.el=b;});
   resize();new ResizeObserver(resize).observe(stage);
@@ -786,7 +744,6 @@ function setCam(dir,jump){
   const d=new THREE.Vector3(...dir).normalize();d.multiplyScalar(camDist(d));
   if(jump){camera.position.copy(d);controls.target.set(0,0,0);controls.update();return;}
   tween={from:camera.position.clone(),to:d,t:0};
-  if(controls.target.lengthSq()>1e-6)tween={lin:true,from:camera.position.clone(),to:d,tf:controls.target.clone(),tt:new THREE.Vector3(),t:0};
 }
 function goView(k){st.view=k;const v=VIEWS.find(x=>x.k===k);$("#viewTitle").textContent=v.t;$("#viewCap").textContent=v.cap;$("#facing").textContent=v.face;
   document.querySelectorAll("#views button").forEach(b=>b.setAttribute("aria-pressed",b.id==="view-"+k));
@@ -800,9 +757,7 @@ function hit(key,el){
 const v3=()=>new THREE.Vector3();
 function loop(){
   requestAnimationFrame(loop);
-  if(tween&&tween.lin){tween.t=Math.min(1,tween.t+.045);const e=1-Math.pow(1-tween.t,3);
-    camera.position.lerpVectors(tween.from,tween.to,e);controls.target.lerpVectors(tween.tf,tween.tt,e);if(tween.t>=1)tween=null;}
-  else if(tween){tween.t=Math.min(1,tween.t+.045);const e=1-Math.pow(1-tween.t,3);
+  if(tween){tween.t=Math.min(1,tween.t+.045);const e=1-Math.pow(1-tween.t,3);
     const a=tween.from.clone().normalize(),b=tween.to.clone().normalize();const len=tween.from.length()+(tween.to.length()-tween.from.length())*e;
     let dir=a.clone().lerp(b,e);if(dir.lengthSq()<1e-4)dir=new THREE.Vector3(1,0,0).lerp(b,e);
     camera.position.copy(dir.normalize().multiplyScalar(len));if(tween.t>=1)tween=null;}
@@ -818,90 +773,6 @@ function loop(){
 }
 function render(){renderPanel();paint();}
 
-// ---------- tags in 3D ----------
-// Each tag is a small woven label (canvas texture: ground, weave, PJ's signature in thread) on a thin card, placed
-// by casting rays at the tee for the chosen size. Patches sit on the fabric; flags stick out of a seam, like the
-// references (side seam flags stand out sideways between the front and back panels).
-let logoImg=null;const logoReady=loadImg("m/pjor_logo_line.png").then(i=>{logoImg=i;LBL={};if(teeMesh)updateTrims();});
-let LBL={};const TAGS={},FR={};
-function labelTex(w,h){
-  const k=[st.lArt,st.lGround,st.lThread,w,h].join("|");if(LBL[k])return LBL[k];
-  const ppi=300,c=document.createElement("canvas");c.width=Math.round(w*ppi);c.height=Math.round(h*ppi);const g=c.getContext("2d");
-  g.fillStyle=st.lGround;g.fillRect(0,0,c.width,c.height);
-  g.globalAlpha=.13;g.fillStyle="#000";for(let y=0;y<c.height;y+=5)g.fillRect(0,y,c.width,2);        // woven ribs
-  g.globalAlpha=.07;g.fillStyle="#fff";for(let x=0;x<c.width;x+=4)g.fillRect(x,0,1.4,c.height);
-  g.globalAlpha=1;g.strokeStyle="rgba(0,0,0,.28)";g.lineWidth=Math.max(3,c.height*.05);g.strokeRect(0,0,c.width,c.height);  // folded / cut edge
-  const aw=c.width*.78,ah=c.height*.7;
-  if(st.lArt==="Signature"&&logoImg){const r=Math.min(aw/logoImg.width,ah/logoImg.height),dw=logoImg.width*r,dh=logoImg.height*r;g.drawImage(tinted(logoImg,st.lThread),(c.width-dw)/2,(c.height-dh)/2,dw,dh);}
-  else{let fs=ah*.6;const txt="PJ O'ROURKE II";g.fillStyle=st.lThread;g.textAlign="center";g.textBaseline="middle";
-    do{g.font=`700 ${fs}px Oswald, Impact, sans-serif`;fs*=.93;}while(g.measureText(txt).width>aw&&fs>5);g.fillText(txt,c.width/2,c.height/2+fs*.04);}
-  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return LBL[k]=t;
-}
-function tagMesh(k,w,h){
-  let g=TAGS[k];
-  if(!g){g=new THREE.Group();const geo=new THREE.PlaneGeometry(1,1);
-    const f=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({roughness:.82,metalness:0,envMapIntensity:.5}));
-    const b=new THREE.Mesh(geo,f.material);b.rotation.y=Math.PI;g.add(f,b);   // two faces, so it reads right from both sides
-    scene.add(g);TAGS[k]=g;}
-  g.children[0].material.map=labelTex(w,h);g.children[0].material.needsUpdate=true;g.scale.set(w,h,1);return g;
-}
-const _nm=new THREE.Matrix3();
-function rayHits(o,d){const r=new THREE.Raycaster(o,d.clone().normalize());return r.intersectObject(teeMesh,false).map(h=>({p:h.point,n:h.face.normal.clone().applyMatrix3(_nm).normalize()}));}
-function sleeveTip(bb){ // wearer's left sleeve opening: the points furthest out in +x (cached per model and size)
-  const key=curModel()+st.size;if(sleeveTip.k===key)return sleeveTip.v;
-  const P=teeMesh.geometry.attributes.position,M=teeMesh.matrixWorld,v=new THREE.Vector3();let mx=-1e9;const pts=[];
-  for(let i=0;i<P.count;i+=2){v.fromBufferAttribute(P,i).applyMatrix4(M);if(v.x>mx)mx=v.x;pts.push(v.x,v.y,v.z);}
-  let sy=0,sz=0,n=0;for(let i=0;i<pts.length;i+=3)if(pts[i]>mx-.5){sy+=pts[i+1];sz+=pts[i+2];n++;}
-  sleeveTip.k=key;return sleeveTip.v={x:mx,y:sy/n,z:sz/n};
-}
-// frame for each spot: c = centre, n = which way the label faces, u = its long direction
-function trimFrames(){
-  _nm.getNormalMatrix(teeMesh.matrixWorld);
-  const bb=new THREE.Box3().setFromObject(teeMesh),top=bb.max.y,bot=bb.min.y,zc=(bb.min.z+bb.max.z)/2,V=(x,y,z)=>new THREE.Vector3(x,y,z);
-  const front=(x,y)=>rayHits(V(x,y,bb.max.z+20),V(0,0,-1)).find(h=>h.n.z>0.05);
-  const onSurf=(h,off)=>{if(!h)return null;const n=h.n,u=V(1,0,0).sub(n.clone().multiplyScalar(n.x)).normalize();return {c:h.p.clone().add(n.clone().multiplyScalar(off||.03)),n,u};};
-  const T=Object.fromEntries(TR.trims.map(t=>[t.key,t])),F={};
-  // A neck: on the front collar rib, 2 in to the wearer's left of center front
-  {let y=top,h=null;for(;y>top-5;y-=.05){h=front(2,y);if(h&&h.p.z>zc)break;}
-   F.A=h?onSurf(front(2,y-.12-T.A.h/2)):null;}
-  // B bottom hem: front, wearer's right, 2 in in from the side seam, just above the hem stitch
-  {const yb=bot+1.1+T.B.h/2,side=rayHits(V(bb.min.x-20,yb,zc),V(1,0,0)).find(h=>h.n.x<-0.05);
-   const x=side?side.p.x+2+T.B.w/2:bb.min.x+3;F.B=onSurf(front(x,yb));}
-  // C sleeve: wearer's left sleeve, outer (front) face, at the hem
-  {const tip=sleeveTip(bb);F.C=onSurf(front(tip.x-.35-T.C.w/2,tip.y),.04);}
-  // D pocket: flag out of the pocket's outer side seam at the top, lying on the shirt
-  {const P=TR.pocket,x=P.over+P.w/2+T.D.w/2-.05,y=top-(P.top+.45+T.D.h/2);F.D=onSurf(front(x,y),.05);}
-  // E outer side hem: out of the wearer's left side seam, 2 in above the hem, standing out sideways
-  {const y=bot+2+T.E.h/2,h=rayHits(V(bb.max.x+20,y,zc),V(-1,0,0)).find(h=>h.n.x>0.05);
-   if(h){const out=V(h.n.x,0,h.n.z).normalize();F.E={c:h.p.clone().add(out.clone().multiplyScalar(T.E.w/2-.04)),n:V(-out.z,0,out.x),u:out,flag:true};}}
-  // F inner side hem: the wearer's right side seam, on the inside, standing in toward the middle
-  {const y=bot+2+T.F.h/2,h=rayHits(V((bb.min.x+bb.max.x)/2,y,zc),V(-1,0,0))[0];
-   if(h){const inw=V(1,0,0);F.F={c:h.p.clone().add(inw.clone().multiplyScalar(T.F.w/2+.06)),n:V(0,0,1),u:inw,flag:true};}}
-  return F;
-}
-function updateTrims(){
-  if(!teeMesh)return;const F=trimFrames();Object.assign(FR,F);
-  TR.trims.forEach(t=>{const f=F[t.key],on=st.trims[t.key]&&f&&(!t.needs||st.pocket);const g=tagMesh(t.key,t.w,t.h);g.visible=!!on;if(!on)return;
-    const n=f.n.clone().normalize(),u=f.u.clone().sub(n.clone().multiplyScalar(f.u.dot(n))).normalize(),v=n.clone().cross(u);
-    g.position.copy(f.c);g.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(u,v,n));});
-}
-// Pocket (to try tag D): a patch pocket drawn on the front, in the shirt colour, with its stitching.
-function drawPocket(c){
-  const P=TR.pocket,x0=X(P.over-P.w/2),y0=Y(P.top),w=P.w*PPX,h=P.h*PPY,st_=3.2;
-  c.save();c.shadowColor="rgba(0,0,0,.28)";c.shadowBlur=18;c.shadowOffsetY=6;c.fillStyle=shade(st.body,-.03);c.fillRect(x0,y0,w,h);c.restore();
-  c.strokeStyle=shade(st.body,-.35);c.lineWidth=3;c.setLineDash([10,8]);
-  c.strokeRect(x0+.12*PPX,y0+.12*PPY,w-.24*PPX,h-.24*PPY);                                  // edge stitch
-  c.beginPath();c.moveTo(x0,y0+.75*PPY);c.lineTo(x0+w,y0+.75*PPY);c.moveTo(x0,y0+.85*PPY);c.lineTo(x0+w,y0+.85*PPY);c.stroke(); // top hem
-  c.setLineDash([]);
-}
-// Fly the camera to a tag: close, square on to its face.
-function trimCam(k,dist){const f=FR[k];if(!f)return null;
-  // F is inside the shirt: look up at it from below the hem
-  const dir=k==="F"?new THREE.Vector3(.55,-1.1,.35).normalize():f.n.clone().add(new THREE.Vector3(f.flag?.25:0,.14,0)).normalize();
-  return {pos:f.c.clone().add(dir.multiplyScalar(dist||(k==="F"?9:10))),target:f.c.clone()};}
-function lookTrim(k){const c=trimCam(k);if(!c||!camera)return;
-  tween={lin:true,from:camera.position.clone(),to:c.pos,tf:controls.target.clone(),tt:c.target,t:0};
-  if(matchMedia("(prefers-reduced-motion: reduce)").matches)tween.t=.999;}
 // ---------- render mode (used by build.py for the PDF) ----------
 // Open the page with #render and it photographs a fixed list of views, then POSTs them as JSON
 // to /__renders (build.py runs a tiny local server for this) and sets the title to RENDERS_DONE.
@@ -910,16 +781,12 @@ async function renderShots(){
   renderer.setPixelRatio(1);renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();
   for(const sh of SH){
     styleDefaults((sh.st&&sh.st.style)||st.style);
-    Object.assign(st,{meas:false,pins:false,blank:BL.defaults.unisex,size:"M",view:"front",sigMode:"accent",noArt:false,pocket:false,
-      trims:Object.fromEntries(TR.trims.map(t=>[t.key,false]))},sh.st||{});
-    if(sh.st&&sh.st.trimsAll)TR.trims.forEach(t=>st.trims[t.key]=true);
+    Object.assign(st,{meas:false,pins:false,blank:BL.defaults.unisex,size:"M",view:"front",sigMode:"accent"},sh.st||{});
     st.finish=(sh.st&&sh.st.finish)||blank().finish;
     if(sh.cw)setCw(sh.cw);if(sh.st&&"fill" in sh.st)st.fill=sh.st.fill;
     applySize();renderPanel();paint();
     const v=VIEWS.find(x=>x.k===st.view);const d=new THREE.Vector3(...v.dir).normalize();
-    camera.position.copy(d.multiplyScalar(camDist(d)*.8));controls.target.set(0,0,0);
-    if(sh.focus){const c=trimCam(sh.focus,sh.dist);if(c){camera.position.copy(c.pos);controls.target.copy(c.target);}}   // tag heroes
-    controls.update();
+    camera.position.copy(d.multiplyScalar(camDist(d)*.8));controls.target.set(0,0,0);controls.update();
     renderer.render(scene,camera);out[sh.id]=renderer.domElement.toDataURL("image/png");
   }
   window.RENDERS=out;document.title="RENDERS_DONE";
