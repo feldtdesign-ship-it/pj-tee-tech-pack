@@ -69,12 +69,12 @@ html,body{background:#fff;color:var(--ink);font:13px/1.4 var(--b);-webkit-print-
 .spec{overflow:hidden}
 .spec .head{padding:8px 14px 4px}
 .spec .nm{font-size:26px;margin-top:3px}
-.spec .ln{border-left:5px solid var(--y);padding-left:10px;margin-top:6px;font-weight:600;font-size:11px}
+.spec .ln{border-left:5px solid var(--y);padding-left:10px;margin-top:5px;font-weight:600;font-size:10.5px;line-height:1.3}
 .spec ol{list-style:none;padding:2px 14px 6px}
-.spec li{display:grid;grid-template-columns:26px 1fr;gap:6px;padding:2.5px 0;border-bottom:1px solid var(--line)}
+.spec li{display:grid;grid-template-columns:26px 1fr;gap:6px;padding:2px 0;border-bottom:1px solid var(--line)}
 .spec .no{font:700 15px/1 var(--h);color:var(--blue)}
 .spec .k{font:700 11px/1.1 var(--h);text-transform:uppercase}
-.spec .v{font-size:9.5px;line-height:1.25}
+.spec .v{font-size:9px;line-height:1.2}
 /* printer rules */
 .rules{background:var(--ink);color:#fff;display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:center;padding:14px 22px}
 .rules .h{color:var(--y);font-size:30px}.rules p{font-size:11px;color:#cfcfcf;margin-top:4px}
@@ -182,7 +182,7 @@ def pom_table(b, poms):
 <div class="note">{note}</div>"""
 
 
-def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, R, site, date):
+def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, R, site, artwork, date):
     global DATE
     DATE = date
     ub = blanks[defaults["unisex"]]
@@ -227,7 +227,7 @@ def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, 
             panels = (panel("Front", "3D render · SHGD M", "The side the factory prints. Starting placement shown, numbers TBC.", shot(R, f"{pre}_front", "Facing you"))
                       + panel("Back", "3D render · SHGD M", "PJ's real signature, center back neck.", shot(R, f"{pre}_back", "Facing away"))
                       + panel("3/4 vanity", "3D render", "For the humans. Not a spec view.", shot(R, f"{pre}_q", "3/4"))
-                      + panel("Women's", "3D render · women's M", "Same print on the women's tee. 9 in wide on every size.", shot(R, f"{pre}_w_front", "Facing you")))
+                      + panel("Women's", "3D render · women's M", f"Same print on the women's tee. {artwork.get(pre, {}).get('start_w', 9)} in wide on every size.", shot(R, f"{pre}_w_front", "Facing you")))
         else:
             panels = (panel("Front", "3D render", "Art TBA. Placement TBC.", shot(R, f"{pre}_front", "Facing you"))
                       + panel("Back", "3D render", "Signature: TBC.", shot(R, f"{pre}_back", "Facing away"))
@@ -239,7 +239,9 @@ def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, 
         inks = "".join(f'<tr><td class="k">{e(a)}</td><td>{e(b) if b else TBC}</td><td>{e(c) if c else TBC}</td><td class="n">{TBC}</td><td class="n">{TBC}</td></tr>' for a, b, c in s["inks"])
         facts = "".join(f'<tr><td class="k">{e(a)}</td><td>{e(b) if b else TBC}</td></tr>' for a, b in s["art_facts"])
         decs = "".join(f'<div class="dec"><b>{e(a)}</b><p>{e(b)}</p></div>' for a, b in s["decisions"]) or '<p class="note">None yet. Add them when the art lands.</p>'
-        art_body = '<div class="art grid"><img src="ART_INK" alt=""></div><div class="cap">Artboard 9 × 12 in, straight from the .ai. Print from the .ai, never from this picture.</div>' if art else '<div class="art grid"><div class="tba">Art TBA</div></div>'
+        aw = artwork.get(pre, {})
+        art_body = (f'<div class="art grid"><img src="ART_INK_{pre}" alt=""></div><div class="cap">{e(aw.get("note", ""))}</div>'
+                    if art and aw else '<div class="art grid"><div class="tba">Art TBA</div></div>')
         backs = (panel("Women's back", "3D render · women's M", "Signature at the back neck on the women's tee.", shot(R, f"{pre}_w_back", "Facing away")) if art else panel("Back", "3D", "Signature: TBC.", shot(R, None, "")))
         pages.append(f"""<div class="page">{header(s, 2, of, "print and placement", blank_line)}<div class="row">
   {panel("Print at size", "The art", "", art_body)}
@@ -257,7 +259,7 @@ def make_pdf_html(styles, rules, poms, blanks, defaults, colourways, cw_source, 
             for c in colourways:
                 chips = "".join(f'<div class="chip"><i style="background:{h}"></i>{k}: {e(nm)}<em>{h}</em></div>' for k, (nm, h) in [("Shirt", [c["shirt"][0] + (" · " + c["pms"] if c.get("pms") else ""), c["shirt"][1]]), ("Line", c["print"]), ("Signature", c["accent"])])
                 cards.append(f"""<section class="cw"><div class="bar"><div class="h">{e(c['num'])} {e(c['name'])}</div><div class="mono">{e(c['tag'])}</div></div>
-  <div class="pair grid"><div><img src="{R.get(f"cw_{c['key']}_front", '')}" alt=""></div><div><img src="{R.get(f"cw_{c['key']}_back", '')}" alt=""></div></div>
+  <div class="pair grid"><div><img src="{R.get(f"{pre}_cw_{c['key']}_front", '')}" alt=""></div><div><img src="{R.get(f"{pre}_cw_{c['key']}_back", '')}" alt=""></div></div>
   <div class="chips">{chips}</div><div class="ln">{e(c['line'])}</div></section>""")
             pages.append(f"""<div class="page">{header(s, 3, of, "colourways", blank_line)}
   <div class="cws">{''.join(cards)}</div>

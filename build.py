@@ -19,28 +19,36 @@ t = t.replace("__BLANKS__", json.dumps({"blanks": BLANKS, "defaults": DEFAULT_BL
     "models": {k: {"base": dict(v["base"])} for k, v in MODELS.items()}}))
 from colourways import COLOURWAYS
 # Views the PDF needs, photographed by the viewer's render mode (#render). Same code as the page, so they match.
-SHOTS = [
-    {"id": "s01_front", "cw": "classic", "st": {"style": "s01", "meas": True, "view": "front"}},
-    {"id": "s01_back", "cw": "classic", "st": {"style": "s01", "meas": True, "view": "back"}},
-    {"id": "s01_q", "cw": "classic", "st": {"style": "s01", "view": "q"}},
-    {"id": "s01_w_front", "cw": "classic", "st": {"style": "s01", "blank": DEFAULT_BLANK["womens"], "meas": True, "view": "front"}},
-    {"id": "s01_w_back", "cw": "classic", "st": {"style": "s01", "blank": DEFAULT_BLANK["womens"], "meas": True, "view": "back"}},
-] + [{"id": f"cw_{c['key']}_{v}", "cw": c["key"], "st": {"style": "s01", "view": v}} for c in COLOURWAYS for v in ("front", "back")] + [
-    {"id": "s02_front", "cw": "classic", "st": {"style": "s02", "meas": True, "view": "front"}},
-    {"id": "s02_back", "cw": "classic", "st": {"style": "s02", "meas": True, "view": "back"}},
-]
+from artwork import ARTWORK
+# Views the PDF needs, for every style with art (and front/back for styles still waiting on art).
+# Photographed by the viewer's render mode (#render), so they match the page.
+SHOTS = []
+for s_ in STYLES:
+    k = s_["key"]
+    if s_["art"]:
+        SHOTS += [{"id": f"{k}_front", "cw": "classic", "st": {"style": k, "meas": True, "view": "front"}},
+                  {"id": f"{k}_back", "cw": "classic", "st": {"style": k, "meas": True, "view": "back"}},
+                  {"id": f"{k}_q", "cw": "classic", "st": {"style": k, "view": "q"}},
+                  {"id": f"{k}_w_front", "cw": "classic", "st": {"style": k, "blank": DEFAULT_BLANK["womens"], "meas": True, "view": "front"}},
+                  {"id": f"{k}_w_back", "cw": "classic", "st": {"style": k, "blank": DEFAULT_BLANK["womens"], "meas": True, "view": "back"}}]
+        SHOTS += [{"id": f"{k}_cw_{c['key']}_{v}", "cw": c["key"], "st": {"style": k, "view": v}} for c in COLOURWAYS for v in ("front", "back")]
+    else:
+        SHOTS += [{"id": f"{k}_front", "cw": "classic", "st": {"style": k, "meas": True, "view": "front"}},
+                  {"id": f"{k}_back", "cw": "classic", "st": {"style": k, "meas": True, "view": "back"}}]
 t = t.replace("__SHOTS__", json.dumps(SHOTS))
 t = t.replace("__COLOURWAYS__", json.dumps(COLOURWAYS))
 # Every 3D base model in src/blanks.py MODELS: tee (.glb), fold shading, garment-dye map. Embedded so the page is one file.
 # Copied to dist/m/ and loaded on demand by the page (only the models a blank needs), so the page stays light.
 (ROOT / "dist/m").mkdir(parents=True, exist_ok=True)
 shutil.copy2(ROOT / "tools/qc.js", ROOT / "dist/qc.js")   # QC helpers, loaded only with #qc
+for a in ARTWORK.values():
+    for f in (a["ink"], a["fill"]): shutil.copy2(A / f, ROOT / "dist/m" / f)
+t = t.replace("__ART__", json.dumps({k: {"ink": "m/" + a["ink"], "fill": "m/" + a["fill"], "start_w": a["start_w"]} for k, a in ARTWORK.items()}))
 for v in MODELS.values():
     for f in (v["glb"], v["shade"], v["wash"]): shutil.copy2(A / f, ROOT / "dist/m" / f)
 t = t.replace("__TEE_GLB__", json.dumps({k: "m/" + v["glb"] for k, v in MODELS.items()}))
 t = t.replace("__TEE_SHADE__", json.dumps({k: "m/" + v["shade"] for k, v in MODELS.items()}))
 t = t.replace("__TEE_WASH__", json.dumps({k: "m/" + v["wash"] for k, v in MODELS.items()}))
-t = t.replace("__INK__", b64("art01_ink.png")).replace("__FILL__", b64("art01_fill.png"))
 t = t.replace("__SIGINK__", b64("PJ_Signature_ink_transparent.png")).replace("__SIG__", b64("PJ_Signature_cream_transparent.png"))
 (ROOT / "dist").mkdir(exist_ok=True)
 
@@ -121,9 +129,10 @@ if RENDERS:
     from pdf import make_pdf_html
     from colourways import SOURCE as CW_SOURCE
     from data import SIZE_POMS
-    ph = make_pdf_html(STYLES, PRINTER_RULES, SIZE_POMS, BLANKS, DEFAULT_BLANK, COLOURWAYS, CW_SOURCE, RENDERS, SITE,
+    ph = make_pdf_html(STYLES, PRINTER_RULES, SIZE_POMS, BLANKS, DEFAULT_BLANK, COLOURWAYS, CW_SOURCE, RENDERS, SITE, ARTWORK,
                        datetime.date.today().strftime("%b %-d, %Y"))
-    ph = ph.replace("SIG_CREAM", b64("PJ_Signature_cream_transparent.png")).replace("ART_INK", b64("art01_ink.png"))
+    ph = ph.replace("SIG_CREAM", b64("PJ_Signature_cream_transparent.png"))
+    for k, a in ARTWORK.items(): ph = ph.replace(f"ART_INK_{k}", b64(a["ink"]))
     with tempfile.TemporaryDirectory() as d:
         src = pathlib.Path(d) / "pack.html"; src.write_text(ph)
         PDF.unlink(missing_ok=True)

@@ -85,11 +85,13 @@ Open the page with `#qc` (e.g. `http://localhost:8770/index.html#qc`) to load `t
 - The two base tees come from `blender/Shirts.blend` in the main PJ folder (kept off GitHub): `assets/tee_viewer_model_v1.glb` (unisex) and `assets/tee_viewer_model_womens_v1.glb` (women's fitted, exported 2026-09-24). Export rules: 1 unit = 1 in, centred, top of collar at 0, front facing forward, about 40k points, normal map only.
 - When PJ's real blank is confirmed, swap the numbers in `src/sizes.py` and rebuild.
 
-## Add a style
+## Add a style (a new design)
 
-1. Put the art through `python3 tools_split_art.py "art.ai" art02`.
-2. Add the style to `STYLES` in `src/data.py`.
-3. Load its layers in `build.py` and `ART` in the template.
+1. `python3 tools/split_art.py "../Artwork/<design>.ai" art03` — ink + fill layers into `assets/`, crops to the ArtBox, prints the file facts. No installs (uses macOS `sips`).
+2. Add it to `src/artwork.py` (layers, starting print width, PDF caption).
+3. Fill its style in `src/data.py` (name, line, art facts from step 1, spec, inks, open decisions; TBC where unknown). data.py edits need Michael's OK.
+4. `python3 build.py`. The page gets a style button; the PDF gets its four sheets (turnaround, print and placement, colourways, measurements) with renders.
+5. QC: open the page with `#qc`, run `QC.sheet(QC.standard())` with the new style selected, and check the print fits the smallest sizes.
 
 ## Copyright
 
@@ -98,4 +100,4 @@ Open the page with `#qc` (e.g. `http://localhost:8770/index.html#qc`) to load `t
 ## Styles
 
 - 01 Citibike Gumbit: front print, signature at the back neck.
-- 02 Next style: empty on purpose.
+- 02 New York Layer Cake: front print (starting 12 in wide), signature at the back neck. From `Artwork/PATCH NEW YORK LAYER CAKE COLOR PJ OROURKE BW SCREEN PRINT.ai`. Added 2026-09-28.

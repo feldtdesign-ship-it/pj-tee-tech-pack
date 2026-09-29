@@ -309,7 +309,8 @@ const BL = __BLANKS__;   // src/blanks.py: blank profiles + 3D base models
 const TEE_GLB = __TEE_GLB__;
 const TEE_SHADE = __TEE_SHADE__;   // baked fold shadows + cotton grain (Blender, tools/make_fabric_shade.py)
 const TEE_WASH = __TEE_WASH__;     // garment-dye map: R edges, G ridges, B mottle (tools/make_garment_dye_map.py)
-const ART = {s01:{ink:"__INK__", fill:"__FILL__"}, sig:"__SIGINK__"};
+const ART = __ART__;   // src/artwork.py: per style {ink, fill, start_w}; files in m/
+ART.sig = "__SIGINK__";
 
 const CW = __COLOURWAYS__;   // src/colourways.py: shirt = body, print = front line, accent = back signature
 const VIEWS = [
@@ -329,7 +330,9 @@ const st = {sdrop:1.5, swidth:3.5, style:"s01", body:"#F3EFE4", ink:"#121212", s
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const cur = ()=>DATA.styles.find(s=>s.key===st.style);
-const printH = ()=>st.width*4/3;
+// print height follows the art's own proportions (Citibike 9 x 12, Layer Cake 62 x 70)
+const artAspect = ()=>{const i=imgs[st.style];return i&&i.ink?i.ink.height/i.ink.width:4/3;};
+const printH = ()=>st.width*artAspect();
 // current size: base model stretched to this size's chest (x, z) and length (y)
 // current blank (spec + sizes) joined with the 3D base model it stretches
 const blank = ()=>BL.blanks[st.blank];
@@ -343,7 +346,8 @@ const tbc = '<span class="tbc">TBC</span>';
 
 // ---------- UI ----------
 function btn(parent,html,attrs,on){const b=document.createElement("button");b.type="button";b.innerHTML=html;for(const k in attrs)b.setAttribute(k,attrs[k]);b.addEventListener("click",on);parent.appendChild(b);return b;}
-DATA.styles.forEach(s=>btn($("#styles"),`<span class="n">${s.num}</span>${esc(s.name)}`,{id:"style-"+s.key,"aria-pressed":s.key===st.style},()=>{st.style=s.key;render();}));
+function setStyle(k){st.style=k;if(ART[k]){st.width=ART[k].start_w;$("#width").value=st.width;}render();}
+DATA.styles.forEach(s=>btn($("#styles"),`<span class="n">${s.num}</span>${esc(s.name)}`,{id:"style-"+s.key,"aria-pressed":s.key===st.style},()=>setStyle(s.key)));
 VIEWS.forEach(v=>btn($("#views"),v.t,{id:"view-"+v.k,"aria-pressed":v.k===st.view},()=>goView(v.k)));
 function setCw(k){const c=CW.find(x=>x.key===k);st.cw=k;st.body=c.shirt[1];st.ink=c.print[1];st.sig=c.accent[1];st.fill=c.fill;}
 CW.forEach(c=>btn($("#cwSw"),`<i style="background:${c.print[1]}"></i><b style="background:${c.accent[1]}"></b>`,{class:"sw cw",id:"cw-"+c.key,title:c.name,"aria-label":"Colourway "+c.name,"aria-pressed":c.key===st.cw,style:"background:"+c.shirt[1]},()=>{setCw(c.key);render();}));
@@ -428,9 +432,10 @@ function paint(){
   [fc,bc].forEach(c=>{c.fillStyle=st.body;c.fillRect(0,0,TW,TH);});
   const top=B.fd+st.drop, w=st.width, h=printH();
   const px=X(-w/2), py=Y(top), pw=w*PPX, ph=h*PPY;
-  if(s.art && imgs.s01){
-    if(st.fill==="print") fc.drawImage(tinted(imgs.s01.fill,"#FAFAF7"),px,py,pw,ph);
-    fc.drawImage(tinted(imgs.s01.ink,st.ink),px,py,pw,ph);
+  const A=imgs[s.key];
+  if(s.art && A){
+    if(st.fill==="print") fc.drawImage(tinted(A.fill,"#FAFAF7"),px,py,pw,ph);
+    fc.drawImage(tinted(A.ink,st.ink),px,py,pw,ph);
   } else {
     fc.setLineDash([26,18]);fc.lineWidth=6;fc.strokeStyle="#121212";fc.strokeRect(px,py,pw,ph);fc.setLineDash([]);
     fc.fillStyle="#121212";fc.font="700 120px Oswald, Impact, sans-serif";fc.textAlign="center";
@@ -658,6 +663,7 @@ async function renderShots(){
   for(const sh of SH){
     Object.assign(st,{meas:false,pins:false,blank:BL.defaults.unisex,size:"M",view:"front"},sh.st||{});
     st.finish=(sh.st&&sh.st.finish)||blank().finish;
+    if(ART[st.style]&&!(sh.st&&"width" in sh.st))st.width=ART[st.style].start_w;
     if(sh.cw)setCw(sh.cw);if(sh.st&&"fill" in sh.st)st.fill=sh.st.fill;
     applySize();renderPanel();paint();
     const v=VIEWS.find(x=>x.k===st.view);const d=new THREE.Vector3(...v.dir).normalize();
@@ -669,7 +675,9 @@ async function renderShots(){
 }
 if(location.hash==="#qc"){const q=document.createElement("script");q.src="qc.js";document.head.appendChild(q);}   // QC tools, see tools/qc.js
 renderPanel();paint();
-const artReady=Promise.all([loadImg(ART.s01.ink),loadImg(ART.s01.fill),loadImg(ART.sig)]);artReady.then(([i,f,g])=>{imgs.s01={ink:i,fill:f};imgs.sig=g;paint();});
+const artReady=Promise.all([loadImg(ART.sig).then(g=>{imgs.sig=g;}),
+  ...Object.entries(ART).filter(([k])=>k!=="sig").map(([k,a])=>Promise.all([loadImg(a.ink),loadImg(a.fill)]).then(([i,f])=>{imgs[k]={ink:i,fill:f};}))]);
+artReady.then(()=>{renderPanel();paint();});
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>paint());
 init3D();
 </script>
