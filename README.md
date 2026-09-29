@@ -94,6 +94,7 @@ Open the page with `#qc` (e.g. `http://localhost:8770/index.html#qc`) to load `t
 - **One-colour designs** (`one_colour: True`): knocked out, so no white fills; the shirt shows through.
 - Pins: `HOT` in the page lists which spec lines a pin can point to (`keys`), so "Chest print" and "Print size" share pin 1, "Back print" is pin 7.
 - **Versions:** git tags `v1`–`v5` are the build steps of 2.0; `v3.0` is this release.
+- **SHGD tee v2 (3.0.1, 2026-09-29, Michael's notes):** no sleeve fullness (it's a bust form, not a body), a natural chest (widening starts below the armhole and grows to the hem), a smaller shoulder drop only along the shoulder line, and folds smoothed for a 7.5 oz knit (seams smoothed as one cloth, openings pinned). Crease texture at 0.35 (`normal` in `src/blanks.py` MODELS). All in `tools/blender_boxy_tee.py`; v1 kept in the .blend (`SHGD_Boxy_Tee_v1_full_sleeves`, `FabricBake_boxy_v1`) and in `assets/` (`*_boxy_v1.glb`, `*_boxy.jpg`). Bake: `blender/fabric_bake/ao_boxy_v2_2048.png`.
 
 ## Add a style (a new design)
 

@@ -22,7 +22,7 @@
         const sz=sizeNow(),bb=new THREE.Box3().setFromObject(teeMesh),H=bb.max.y-bb.min.y;
         if(Math.abs(H-sz.length)>.05)r.bad.push(`${bk} ${z}: length ${H.toFixed(2)} vs spec ${sz.length}`);
         for(const v of ['front','back','q'])goView(v);
-        const miss=HOT.filter(h=>!h.p||Math.abs(h.p[2])<.05).map(h=>h.key);
+        const miss=HOT.filter(h=>!(h.el&&h.el.hidden)&&(!h.p||Math.abs(h.p[2])<.05)).map(h=>h.key);   // hidden pins (nothing to mark) don't count
         if(miss.length)r.bad.push(`${bk} ${z}: pins off the fabric: ${miss.join(', ')}`);
       }
     }

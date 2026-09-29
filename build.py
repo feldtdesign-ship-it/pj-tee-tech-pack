@@ -19,7 +19,7 @@ t = t.replace("__DATA__", json.dumps({"styles": STYLES, "rules": PRINTER_RULES})
 # The viewer stretches each one to the chest + length of the chosen blank and size (src/blanks.py).
 from blanks import BLANKS, MODELS, DEFAULT_BLANK
 t = t.replace("__BLANKS__", json.dumps({"blanks": BLANKS, "defaults": DEFAULT_BLANK,
-    "models": {k: {"base": dict(v["base"])} for k, v in MODELS.items()}}))
+    "models": {k: {"base": dict(v["base"]), "normal": v.get("normal", 0.9)} for k, v in MODELS.items()}}))
 from colourways import COLOURWAYS
 # Views the PDF needs, photographed by the viewer's render mode (#render). Same code as the page, so they match.
 from artwork import ARTWORK

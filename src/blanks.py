@@ -23,10 +23,14 @@ MODELS = {
                "base": {"chest": 20.81, "length": 29.0, "front_drop": 1.69, "back_drop": 0.0, "W": 23.5, "H": 29.0}},
     "womens": {"glb": "tee_viewer_model_womens_v1.glb", "shade": "tee_fabric_shade_womens.jpg", "wash": "tee_gd_wash_womens.jpg",
                "base": {"chest": 15.7, "length": 22.98, "front_drop": 2.35, "back_drop": 0.06, "W": 16.73, "H": 22.98}},
-    # Boxy / oversized (SHGD): the unisex tee reshaped by tools/blender_boxy_tee.py (wider, flatter body, dropped
-    # shoulders, longer fuller sleeves). Measured by tools/blender_export_viewer_tee.py, 2026-09-28.
-    "boxy": {"glb": "tee_viewer_model_boxy_v1.glb", "shade": "tee_fabric_shade_boxy.jpg", "wash": "tee_gd_wash_boxy.jpg",
-             "base": {"chest": 12.97, "length": 17.91, "front_drop": 1.04, "back_drop": 0.0, "W": 16.72, "H": 17.91}},
+    # Boxy / structured (SHGD, 7.5 oz): the unisex tee reshaped by tools/blender_boxy_tee.py. v2 (2026-09-29, Michael's
+    # notes): natural chest, straight sides widening toward the hem, small shoulder drop, flat sleeves (no fullness:
+    # it's a bust form), folds smoothed for a heavy knit. v1 files kept (tee_viewer_model_boxy_v1.glb,
+    # tee_fabric_shade_boxy.jpg, tee_gd_wash_boxy.jpg). Measured by tools/blender_export_viewer_tee.py.
+    # normal = strength of the crease texture (1 = as the stand-in tee has it); a heavy knit creases less.
+    "boxy": {"glb": "tee_viewer_model_boxy_v2.glb", "shade": "tee_fabric_shade_boxy_v2.jpg", "wash": "tee_gd_wash_boxy_v2.jpg",
+             "normal": 0.35,
+             "base": {"chest": 13.03, "length": 17.9, "front_drop": 1.05, "back_drop": 0.0, "W": 15.79, "H": 17.9}},
 }
 
 BLANKS = {

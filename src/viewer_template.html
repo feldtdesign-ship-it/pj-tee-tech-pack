@@ -443,7 +443,7 @@ function frac(v){const t=frac8(v);return (t.startsWith("0 ")?t.slice(2):t)+" in"
 
 // Pin numbers come from the spec list order, so a pin always shows the same number as its line in the side menu.
 function pinNo(h){const sp=cur().spec;for(const key of h.keys){const i=sp.findIndex(([k])=>k===key);if(i>=0){h.key=key;return String(i+1).padStart(2,"0");}}h.key=h.keys[0];return "";}
-function numberPins(){HOT.forEach(h=>{const n=pinNo(h);if(!h.el)return;h.el.textContent=n;h.el.hidden=!n;});}
+function numberPins(){HOT.forEach(h=>{const n=pinNo(h);if(!h.el)return;h.el.textContent=n;h.el.hidden=!n||(h.role==="back"&&st.place!=="chest_back");});}   // no back print in center-front mode
 function renderPanel(){
   const s=cur();
   $("#sNum").textContent="Style "+s.num;
@@ -639,7 +639,7 @@ function imgTex(cache,src,k){
 function planarMaterial(tex,normalMap,k){
   const m=new THREE.MeshPhysicalMaterial({map:tex,normalMap:normalMap||null,roughness:FAB.rough,metalness:0,
     sheen:FAB.sheen,sheenRoughness:FAB.sheenRough,sheenColor:new THREE.Color(1,1,1),specularIntensity:.15,envMapIntensity:FAB.env,side:THREE.DoubleSide});
-  if(normalMap)m.normalScale=new THREE.Vector2(.9,.9);
+  if(normalMap){const ns=BL.models[k].normal;m.normalScale=new THREE.Vector2(ns,ns);}   // per model: heavy knits crease less
   m.userData.shadeTex=shadeTex(k);m.userData.washTex=washTex(k);
   m.onBeforeCompile=sh=>{
     m.userData.sh=sh;
@@ -792,7 +792,7 @@ async function renderShots(){
   window.RENDERS=out;document.title="RENDERS_DONE";
   fetch("/__renders",{method:"POST",body:JSON.stringify(out)}).catch(()=>{});
 }
-if(location.hash==="#qc"){const q=document.createElement("script");q.src="qc.js";document.head.appendChild(q);}   // QC tools, see tools/qc.js
+if(location.hash==="#qc"){const q=document.createElement("script");q.src="qc.js?"+Date.now();document.head.appendChild(q);}   // QC tools, see tools/qc.js
 renderPanel();paint();
 const artReady=Promise.all([loadImg(ART.sig).then(g=>{imgs.sig=g;}),
   ...Object.entries(ART).filter(([k])=>k!=="sig").map(([k,a])=>Promise.all([loadImg(a.ink),loadImg(a.fill)]).then(([i,f])=>{imgs[k]={ink:i,fill:f};}))]);
